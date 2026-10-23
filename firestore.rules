@@ -1,0 +1,363 @@
+rules_version = '2';
+
+// LifeMate Firestore Security Rules — Phases 1–5
+//
+// Principles:
+//   • A user can only read/write documents under users/{theirUid}.
+//   • Every write is validated: allowed keys, required keys, types, ranges.
+//   • createdAt is set once by the server and can never be changed;
+//     updatedAt must be the server time of the write.
+//   • Any path not listed below is DENIED.
+//
+// Test with:  cd firestore_tests && npm test   (uses the Firestore emulator)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    function data() { return request.resource.data; }
+
+    function onlyKeys(allowed) { return data().keys().hasOnly(allowed); }
+    function hasKeys(required) { return data().keys().hasAll(required); }
+
+    function isCurrency(v) { return v is string && v.matches('^[A-Z]{3}$'); }
+    function isMoney(v) { return v is int && v > 0 && v <= 100000000000000; }
+    function isText(v, min, max) {
+      return v is string && v.size() >= min && v.size() <= max;
+    }
+    function isTxType(v) { return v in ['income', 'expense']; }
+    function isPercentOrNull(v) {
+      return v == null || (v is int && v >= 1 && v <= 99);
+    }
+
+    function createdNow() {
+      return data().createdAt == request.time && data().updatedAt == request.time;
+    }
+    function updatedNow() {
+      return data().createdAt == resource.data.createdAt
+          && data().updatedAt == request.time;
+    }
+
+    // ── users/{userId} — profile ─────────────────────────────────
+    match /users/{userId} {
+      // Each key optional; every present value must be a bool.
+      function validNotificationPrefs(p) {
+        return p is map
+          && p.keys().hasOnly(['spendingLimits', 'reminders', 'tasks',
+                               'events', 'savings'])
+          && (!('spendingLimits' in p) || p.spendingLimits is bool)
+          && (!('reminders' in p) || p.reminders is bool)
+          && (!('tasks' in p) || p.tasks is bool)
+          && (!('events' in p) || p.events is bool)
+          && (!('savings' in p) || p.savings is bool);
+      }
+
+      function validProfile() {
+        return onlyKeys(['displayName', 'email', 'photoUrl', 'currency',
+                         'locale', 'timeZone', 'categoriesSeeded',
+                         'notificationPreferences', 'createdAt', 'updatedAt'])
+          && isText(data().displayName, 0, 50)
+          && data().email is string
+          && isCurrency(data().currency)
+          && data().locale in ['en', 'km']
+          && isText(data().timeZone, 1, 64)
+          && (!('photoUrl' in data()) || data().photoUrl is string)
+          && (!('categoriesSeeded' in data()) || data().categoriesSeeded is bool)
+          && (!('notificationPreferences' in data())
+              || validNotificationPrefs(data().notificationPreferences))
+          && data().updatedAt == request.time;
+      }
+
+      allow read, delete: if isOwner(userId);
+      // The stored email must be the signed-in account's email.
+      allow create: if isOwner(userId) && validProfile()
+                    && hasKeys(['displayName', 'email', 'currency', 'locale',
+                                'timeZone', 'createdAt', 'updatedAt'])
+                    && data().email == request.auth.token.email
+                    && data().createdAt == request.time;
+      // createdAt and email are protected: they can never be changed.
+      allow update: if isOwner(userId) && validProfile()
+                    && data().createdAt == resource.data.createdAt
+                    && data().email == resource.data.email;
+
+      // ── categories ─────────────────────────────────────────────
+      match /categories/{categoryId} {
+        function validCategory() {
+          return onlyKeys(['name', 'type', 'iconKey', 'colorValue',
+                           'isDefault', 'createdAt', 'updatedAt'])
+            && hasKeys(['name', 'type', 'iconKey', 'colorValue',
+                        'isDefault', 'createdAt', 'updatedAt'])
+            && isText(data().name, 1, 30)
+            && isTxType(data().type)
+            && isText(data().iconKey, 1, 30)
+            && data().colorValue is int
+            && data().isDefault is bool;
+        }
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && validCategory() && createdNow();
+        // A category's type cannot change (transactions depend on it).
+        allow update: if isOwner(userId) && validCategory() && updatedNow()
+                      && data().type == resource.data.type;
+      }
+
+      // ── transactions ───────────────────────────────────────────
+      match /transactions/{transactionId} {
+        function validTransaction() {
+          return onlyKeys(['type', 'amountMinorUnits', 'currency',
+                           'categoryId', 'categoryName', 'description',
+                           'date', 'createdAt', 'updatedAt'])
+            && hasKeys(['type', 'amountMinorUnits', 'currency',
+                        'categoryId', 'categoryName', 'description',
+                        'date', 'createdAt', 'updatedAt'])
+            && isTxType(data().type)
+            && isMoney(data().amountMinorUnits)
+            && isCurrency(data().currency)
+            && isText(data().categoryId, 1, 100)
+            && isText(data().categoryName, 1, 30)
+            && isText(data().description, 0, 200)
+            && data().date is timestamp;
+        }
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && validTransaction() && createdNow();
+        allow update: if isOwner(userId) && validTransaction() && updatedNow();
+      }
+
+      // ── spendingLimits/{daily|monthly} ─────────────────────────
+      match /spendingLimits/{period} {
+        function validLimit() {
+          return onlyKeys(['period', 'amountMinorUnits', 'currency',
+                           'alertsEnabled', 'warningThresholdPercent',
+                           'createdAt', 'updatedAt'])
+            && hasKeys(['period', 'amountMinorUnits', 'currency',
+                        'alertsEnabled', 'warningThresholdPercent',
+                        'createdAt', 'updatedAt'])
+            && period in ['daily', 'monthly']
+            && data().period == period
+            && isMoney(data().amountMinorUnits)
+            && isCurrency(data().currency)
+            && data().alertsEnabled is bool
+            && (data().warningThresholdPercent == null
+                || (data().warningThresholdPercent is int
+                    && data().warningThresholdPercent >= 1
+                    && data().warningThresholdPercent <= 99));
+        }
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && validLimit() && createdNow();
+        allow update: if isOwner(userId) && validLimit() && updatedNow();
+      }
+
+      // ── notificationEvents — alert de-duplication state ────────
+      match /notificationEvents/{eventId} {
+        function validLimitEvent() {
+          return onlyKeys(['kind', 'period', 'periodKey', 'level', 'updatedAt'])
+            && hasKeys(['kind', 'period', 'periodKey', 'level', 'updatedAt'])
+            && data().kind == 'spendingLimit'
+            && data().period in ['daily', 'monthly']
+            && isText(data().periodKey, 7, 10)
+            && data().level in ['ok', 'warning', 'reached', 'exceeded']
+            && eventId == 'limit_' + data().period + '_' + data().periodKey
+            && data().updatedAt == request.time;
+        }
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId) && validLimitEvent();
+      }
+
+      // ════════════════ Phase 4 ════════════════
+
+      // ── budgets ────────────────────────────────────────────────
+      // Category allocations are a map { categoryId: int } in the budget
+      // (rules cannot loop over map values; the app validates each one).
+      match /budgets/{budgetId} {
+        function validBudget() {
+          return onlyKeys(['name', 'startDate', 'endDate', 'currency',
+                           'totalAmountMinorUnits', 'allocations',
+                           'warningThresholdPercent', 'createdAt', 'updatedAt'])
+            && hasKeys(['name', 'startDate', 'endDate', 'currency',
+                        'totalAmountMinorUnits', 'allocations',
+                        'warningThresholdPercent', 'createdAt', 'updatedAt'])
+            && isText(data().name, 1, 40)
+            && data().startDate is timestamp
+            && data().endDate is timestamp
+            && data().endDate >= data().startDate
+            && data().endDate <= data().startDate + duration.value(367, 'd')
+            && isCurrency(data().currency)
+            && isMoney(data().totalAmountMinorUnits)
+            && data().allocations is map
+            && data().allocations.size() <= 50
+            && isPercentOrNull(data().warningThresholdPercent);
+        }
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && validBudget() && createdNow();
+        allow update: if isOwner(userId) && validBudget() && updatedNow();
+      }
+
+      // ── savingsGoals + contributions ───────────────────────────
+      match /savingsGoals/{goalId} {
+        function validGoal() {
+          return onlyKeys(['name', 'currency', 'targetAmountMinorUnits',
+                           'savedAmountMinorUnits', 'targetDate', 'isCompleted',
+                           'reminderDayOfMonth', 'createdAt', 'updatedAt'])
+            && hasKeys(['name', 'currency', 'targetAmountMinorUnits',
+                        'savedAmountMinorUnits', 'targetDate', 'isCompleted',
+                        'reminderDayOfMonth', 'createdAt', 'updatedAt'])
+            && isText(data().name, 1, 40)
+            && isCurrency(data().currency)
+            && isMoney(data().targetAmountMinorUnits)
+            && data().savedAmountMinorUnits is int
+            && data().savedAmountMinorUnits >= 0
+            && data().savedAmountMinorUnits <= 100000000000000
+            && (data().targetDate == null || data().targetDate is timestamp)
+            && data().isCompleted is bool
+            && (data().reminderDayOfMonth == null
+                || (data().reminderDayOfMonth is int
+                    && data().reminderDayOfMonth >= 1
+                    && data().reminderDayOfMonth <= 28));
+        }
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && validGoal() && createdNow();
+        // Currency is fixed: contributions were recorded in it.
+        allow update: if isOwner(userId) && validGoal() && updatedNow()
+                      && data().currency == resource.data.currency;
+
+        match /contributions/{contributionId} {
+          function validContribution() {
+            return onlyKeys(['amountMinorUnits', 'note', 'date', 'createdAt'])
+              && hasKeys(['amountMinorUnits', 'note', 'date', 'createdAt'])
+              && data().amountMinorUnits is int
+              && data().amountMinorUnits != 0
+              && data().amountMinorUnits <= 100000000000000
+              && data().amountMinorUnits >= -100000000000000
+              && isText(data().note, 0, 100)
+              && data().date is timestamp
+              && data().createdAt == request.time;
+          }
+          allow read, delete: if isOwner(userId);
+          // existsAfter: the goal may be created in the same batch.
+          allow create: if isOwner(userId) && validContribution()
+                        && existsAfter(/databases/$(database)/documents/users/$(userId)/savingsGoals/$(goalId));
+          // History entries are immutable; delete and re-add instead.
+          allow update: if false;
+        }
+      }
+
+      // ════════════════ Phase 5 ════════════════
+
+      // ── tasks ──────────────────────────────────────────────────
+      match /tasks/{taskId} {
+        function validTask() {
+          return onlyKeys(['title', 'notes', 'dueAt', 'hasDueTime', 'priority',
+                           'status', 'reminderEnabled', 'completedAt',
+                           'createdAt', 'updatedAt'])
+            && hasKeys(['title', 'notes', 'dueAt', 'hasDueTime', 'priority',
+                        'status', 'reminderEnabled', 'completedAt',
+                        'createdAt', 'updatedAt'])
+            && isText(data().title, 1, 100)
+            && isText(data().notes, 0, 500)
+            && (data().dueAt == null || data().dueAt is timestamp)
+            && data().hasDueTime is bool
+            && data().priority in ['low', 'medium', 'high']
+            && data().status in ['todo', 'inProgress', 'done']
+            && data().reminderEnabled is bool
+            && (data().completedAt == null || data().completedAt is timestamp);
+        }
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && validTask() && createdNow();
+        allow update: if isOwner(userId) && validTask() && updatedNow();
+      }
+
+      // ── calendarEvents ─────────────────────────────────────────
+      match /calendarEvents/{eventId} {
+        function validEvent() {
+          return onlyKeys(['title', 'startAt', 'endAt', 'allDay', 'location',
+                           'notes', 'reminderMinutesBefore',
+                           'createdAt', 'updatedAt'])
+            && hasKeys(['title', 'startAt', 'endAt', 'allDay', 'location',
+                        'notes', 'reminderMinutesBefore',
+                        'createdAt', 'updatedAt'])
+            && isText(data().title, 1, 100)
+            && data().startAt is timestamp
+            && data().endAt is timestamp
+            && data().endAt > data().startAt
+            // Max 31 days (+1 day margin for daylight-saving shifts).
+            && data().endAt <= data().startAt + duration.value(32, 'd')
+            && data().allDay is bool
+            && isText(data().location, 0, 100)
+            && isText(data().notes, 0, 500)
+            && (data().reminderMinutesBefore == null
+                || (data().reminderMinutesBefore is int
+                    && data().reminderMinutesBefore >= 0
+                    && data().reminderMinutesBefore <= 10080));
+        }
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && validEvent() && createdNow();
+        allow update: if isOwner(userId) && validEvent() && updatedNow();
+      }
+
+      // ── reminders (general + bills) ────────────────────────────
+      match /reminders/{reminderId} {
+        function validReminder() {
+          return onlyKeys(['title', 'notes', 'kind', 'remindAt', 'repeat',
+                           'amountMinorUnits', 'currency', 'status',
+                           'createdAt', 'updatedAt'])
+            && hasKeys(['title', 'notes', 'kind', 'remindAt', 'repeat',
+                        'amountMinorUnits', 'currency', 'status',
+                        'createdAt', 'updatedAt'])
+            && isText(data().title, 1, 100)
+            && isText(data().notes, 0, 300)
+            && data().kind in ['general', 'bill']
+            && data().remindAt is timestamp
+            && data().repeat in ['none', 'daily', 'weekly', 'monthly']
+            && data().status in ['pending', 'completed', 'dismissed']
+            && (data().amountMinorUnits == null
+                || (data().kind == 'bill' && isMoney(data().amountMinorUnits)
+                    && isCurrency(data().currency)))
+            && (data().currency == null || isCurrency(data().currency));
+        }
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && validReminder() && createdNow();
+        allow update: if isOwner(userId) && validReminder() && updatedNow();
+      }
+
+      // ── shoppingLists + items ──────────────────────────────────
+      match /shoppingLists/{listId} {
+        function validList() {
+          return onlyKeys(['name', 'createdAt', 'updatedAt'])
+            && hasKeys(['name', 'createdAt', 'updatedAt'])
+            && isText(data().name, 1, 40);
+        }
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && validList() && createdNow();
+        allow update: if isOwner(userId) && validList() && updatedNow();
+
+        match /items/{itemId} {
+          function validItem() {
+            return onlyKeys(['name', 'quantity', 'unit', 'isPurchased',
+                             'createdAt', 'updatedAt'])
+              && hasKeys(['name', 'quantity', 'unit', 'isPurchased',
+                          'createdAt', 'updatedAt'])
+              && isText(data().name, 1, 60)
+              && data().quantity is int
+              && data().quantity >= 1 && data().quantity <= 9999
+              && isText(data().unit, 0, 12)
+              && data().isPurchased is bool;
+          }
+          function listExists() {
+            return existsAfter(/databases/$(database)/documents/users/$(userId)/shoppingLists/$(listId));
+          }
+          allow read, delete: if isOwner(userId);
+          allow create: if isOwner(userId) && validItem() && createdNow()
+                        && listExists();
+          allow update: if isOwner(userId) && validItem() && updatedNow()
+                        && listExists();
+        }
+      }
+    }
+
+    // Everything else (including later-phase collections) is denied.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

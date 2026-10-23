@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "704724146672",
+    "project_id": "lifemate-34a2b",
+    "storage_bucket": "lifemate-34a2b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:704724146672:android:d7ee20e96c287840c8a535",
+        "android_client_info": {
+          "package_name": "com.lifemate.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUvW6nHoID9jzUSs9fOoWCe-viQpD3iyM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
