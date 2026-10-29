@@ -401,37 +401,37 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingTitle1.
   ///
   /// In en, this message translates to:
-  /// **'Manage Your Money'**
+  /// **'Take control\nof your finances'**
   String get onboardingTitle1;
 
   /// No description provided for @onboardingBody1.
   ///
   /// In en, this message translates to:
-  /// **'Track income and expenses, set spending limits, and reach your savings goals — all in one place.'**
+  /// **'Track your income, expenses, budgets and achieve your goals — all in one place.'**
   String get onboardingBody1;
 
   /// No description provided for @onboardingTitle2.
   ///
   /// In en, this message translates to:
-  /// **'Plan Every Day'**
+  /// **'Stay on top\nof your day'**
   String get onboardingTitle2;
 
   /// No description provided for @onboardingBody2.
   ///
   /// In en, this message translates to:
-  /// **'Organise tasks, schedule events, set reminders, and never miss an important bill again.'**
+  /// **'Manage tasks, calendar events, reminders and shopping lists for a better you.'**
   String get onboardingBody2;
 
   /// No description provided for @onboardingTitle3.
   ///
   /// In en, this message translates to:
-  /// **'Stay Organised'**
+  /// **'Spend smart,\nsave more'**
   String get onboardingTitle3;
 
   /// No description provided for @onboardingBody3.
   ///
   /// In en, this message translates to:
-  /// **'Create shopping lists, track your budget categories, and get clear reports on your spending habits.'**
+  /// **'Set daily and monthly limits and savings goals, and get a gentle alert before you overspend.'**
   String get onboardingBody3;
 
   /// No description provided for @onboardingSkip.
@@ -467,13 +467,13 @@ abstract class AppLocalizations {
   /// No description provided for @loginTitle.
   ///
   /// In en, this message translates to:
-  /// **'Welcome back'**
+  /// **'Welcome back!'**
   String get loginTitle;
 
   /// No description provided for @loginSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Sign in to your LifeMate account.'**
+  /// **'Sign in to continue'**
   String get loginSubtitle;
 
   /// No description provided for @fieldEmail.
@@ -521,7 +521,7 @@ abstract class AppLocalizations {
   /// No description provided for @registerTitle.
   ///
   /// In en, this message translates to:
-  /// **'Create account'**
+  /// **'Create your account'**
   String get registerTitle;
 
   /// No description provided for @registerSubtitle.
@@ -1387,6 +1387,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your account was deleted.'**
   String get deleteDone;
+
+  /// No description provided for @appTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan Today · Live Better'**
+  String get appTagline;
+
+  /// No description provided for @authContinueWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get authContinueWithGoogle;
+
+  /// No description provided for @authOr.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get authOr;
+
+  /// No description provided for @authSignUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get authSignUp;
+
+  /// No description provided for @authGoogleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in failed. Please try again.'**
+  String get authGoogleFailed;
+
+  /// No description provided for @authGoogleNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in is not set up for this app yet. Use email and password for now.'**
+  String get authGoogleNotConfigured;
+
+  /// No description provided for @authAccountExistsDifferentCredential.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already registered with a different sign-in method. Log in with your email and password.'**
+  String get authAccountExistsDifferentCredential;
+
+  /// No description provided for @settingsPasswordGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'You sign in with Google — your password is managed in your Google account.'**
+  String get settingsPasswordGoogle;
+
+  /// No description provided for @deleteGoogleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You signed in with Google. To confirm, choose your Google account again.'**
+  String get deleteGoogleHint;
+
+  /// No description provided for @deleteConfirmWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm with Google and delete'**
+  String get deleteConfirmWithGoogle;
+
+  /// No description provided for @homeBalanceThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance this month'**
+  String get homeBalanceThisMonth;
+
+  /// No description provided for @homeSpendingThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending this month'**
+  String get homeSpendingThisMonth;
+
+  /// No description provided for @homeHideAmounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide amounts'**
+  String get homeHideAmounts;
+
+  /// No description provided for @homeShowAmounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Show amounts'**
+  String get homeShowAmounts;
+
+  /// No description provided for @homeNoMonthlyTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a monthly limit to track this'**
+  String get homeNoMonthlyTarget;
+
+  /// No description provided for @quickAddIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Income'**
+  String get quickAddIncome;
+
+  /// No description provided for @quickAddExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Expense'**
+  String get quickAddExpense;
+
+  /// No description provided for @quickAddTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Task'**
+  String get quickAddTask;
+
+  /// No description provided for @quickShoppingList.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping'**
+  String get quickShoppingList;
+
+  /// No description provided for @successTransactionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Added!'**
+  String get successTransactionTitle;
+
+  /// No description provided for @successTransactionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your transaction has been recorded successfully.'**
+  String get successTransactionBody;
+
+  /// No description provided for @successViewTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'View Transactions'**
+  String get successViewTransactions;
+
+  /// No description provided for @successAddAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Another'**
+  String get successAddAnother;
+
+  /// No description provided for @successDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get successDone;
+
+  /// No description provided for @settingsExportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data'**
+  String get settingsExportData;
+
+  /// No description provided for @settingsExportDataDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced to the cloud automatically · export as CSV'**
+  String get settingsExportDataDesc;
 }
 
 class _AppLocalizationsDelegate

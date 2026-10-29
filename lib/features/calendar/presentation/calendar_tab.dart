@@ -207,45 +207,57 @@ class _MonthGrid extends StatelessWidget {
                     final isToday = AppDateUtils.isSameDay(day, today);
                     final dots = dotsFor(day);
                     return InkWell(
-                      borderRadius: BorderRadius.circular(12),
+                      customBorder: const CircleBorder(),
                       onTap: () => onSelect(day),
-                      child: Container(
-                        height: 48,
-                        margin: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: isSelected ? AppColors.primary : null,
-                          borderRadius: BorderRadius.circular(12),
-                          border: isToday && !isSelected
-                              ? Border.all(color: AppColors.primary)
-                              : null,
-                        ),
+                      child: SizedBox(
+                        height: 52,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              '$dayNumber',
-                              style: AppTextStyles.labelLarge.copyWith(
-                                color: isSelected
-                                    ? Colors.white
-                                    : AppColors.textPrimary,
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: 36,
+                              height: 36,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isSelected ? AppColors.primary : null,
+                                border: isToday && !isSelected
+                                    ? Border.all(
+                                        color: AppColors.primary, width: 1.5)
+                                    : null,
+                              ),
+                              child: Text(
+                                '$dayNumber',
+                                style: AppTextStyles.labelLarge.copyWith(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppColors.textPrimary,
+                                  fontWeight: isSelected || isToday
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                ),
                               ),
                             ),
-                            const Gap(3),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                for (final color in dots)
-                                  Container(
-                                    width: 5,
-                                    height: 5,
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 1),
-                                    decoration: BoxDecoration(
-                                      color: isSelected ? Colors.white : color,
-                                      shape: BoxShape.circle,
+                            const Gap(2),
+                            SizedBox(
+                              height: 5,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  for (final color in dots)
+                                    Container(
+                                      width: 5,
+                                      height: 5,
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 1),
+                                      decoration: BoxDecoration(
+                                        color: color,
+                                        shape: BoxShape.circle,
+                                      ),
                                     ),
-                                  ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -281,39 +293,60 @@ class _EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
+    return InkWell(
       onTap: () => context.push(AppRoutes.editEvent(event.id)),
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          const Gap(12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(event.title, style: AppTextStyles.titleMedium),
-                const Gap(2),
-                Text(
-                  [
-                    eventTimeLabel(event),
-                    if (event.location.isNotEmpty) event.location,
-                  ].join(' · '),
-                  style: AppTextStyles.bodySmall,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(
+                width: 66,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    event.allDay
+                        ? 'All day'
+                        : AppDateUtils.formatTime(event.startAt),
+                    style: AppTextStyles.labelMedium,
+                  ),
                 ),
-              ],
-            ),
+              ),
+              Container(
+                width: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.honey,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const Gap(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(event.title, style: AppTextStyles.titleMedium),
+                    const Gap(2),
+                    Text(
+                      [
+                        eventTimeLabel(event),
+                        if (event.location.isNotEmpty) event.location,
+                      ].join(' · '),
+                      style: AppTextStyles.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              if (event.reminderMinutesBefore != null)
+                const Padding(
+                  padding: EdgeInsets.only(top: 2),
+                  child: Icon(Icons.notifications_active_outlined,
+                      size: 18, color: AppColors.textSecondary),
+                ),
+            ],
           ),
-          if (event.reminderMinutesBefore != null)
-            const Icon(Icons.notifications_active_outlined,
-                size: 18, color: AppColors.textSecondary),
-        ],
+        ),
       ),
     );
   }

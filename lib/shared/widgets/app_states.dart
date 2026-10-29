@@ -5,6 +5,8 @@ import '../../core/errors/app_exception.dart';
 import '../../core/l10n/l10n.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import 'illustrations.dart';
+import 'ui_kit.dart';
 
 /// Friendly placeholder for empty lists and new accounts.
 class EmptyState extends StatelessWidget {
@@ -30,15 +32,7 @@ class EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: const BoxDecoration(
-              color: AppColors.softTeal,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 36, color: AppColors.primary),
-          ),
+          EmptyListArt(size: 150, icon: icon),
           const Gap(16),
           Text(title,
               style: AppTextStyles.headlineSmall, textAlign: TextAlign.center),
@@ -53,7 +47,7 @@ class EmptyState extends StatelessWidget {
           ),
           if (actionLabel != null) ...[
             const Gap(20),
-            ElevatedButton(onPressed: onAction, child: Text(actionLabel!)),
+            HoneyButton(label: actionLabel!, onPressed: onAction),
           ],
         ],
       ),

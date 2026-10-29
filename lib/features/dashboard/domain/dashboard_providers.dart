@@ -35,7 +35,6 @@ class DashboardData {
 
   final DateRange month;
 
-  /// Income / expenses / net for [month], per currency.
   final FinanceSummary summary;
 
   /// Today's expenses, per currency (income excluded).
@@ -47,7 +46,6 @@ class DashboardData {
   bool get hasAnyData => !summary.isEmpty || !todaySpending.isEmpty;
 }
 
-/// Combines the selected-month stream and today's expenses. Derived from
 /// live Firestore streams, so it refreshes after any transaction change.
 final dashboardProvider = Provider<AsyncValue<DashboardData>>((ref) {
   final now = watchNow(ref);

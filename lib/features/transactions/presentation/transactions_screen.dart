@@ -11,6 +11,7 @@ import '../../../core/utils/money.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/app_states.dart';
 import '../../../shared/widgets/date_range_filter.dart';
+import '../../../shared/widgets/ui_kit.dart';
 import '../data/transaction_repository.dart';
 import '../domain/finance_summary.dart';
 import '../domain/finance_transaction.dart';
@@ -100,17 +101,31 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('Transactions')),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () =>
-            context.push(AppRoutes.newTransactionOf(TransactionType.expense.name)),
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Add transaction',
+        onPressed: () => context.push(AppRoutes.newTransactionOf(
+            (_filter.type ?? TransactionType.expense).name)),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Add'),
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add_rounded, size: 28),
       ),
       body: Column(
         children: [
-          // ── Search + filters ─────────────────────────────────────
+          // ── Type tabs + search + filters ─────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: PillTabs<TransactionType?>(
+              options: const [null, TransactionType.income, TransactionType.expense],
+              selected: _filter.type,
+              labelOf: (t) => t == null ? 'All' : (t.isIncomeType ? 'Income' : 'Expenses'),
+              onSelected: (type) => setState(() {
+                _filter = type == null
+                    ? _filter.copyWith(clearType: true)
+                    : _filter.copyWith(type: type);
+              }),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: TextField(
@@ -146,18 +161,6 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                   onTap: _chooseRange,
                 ),
                 const Gap(8),
-                for (final type in [null, ...TransactionType.values]) ...[
-                  _FilterChip(
-                    label: type?.label ?? 'All',
-                    selected: _filter.type == type,
-                    onTap: () => setState(() {
-                      _filter = type == null
-                          ? _filter.copyWith(clearType: true)
-                          : _filter.copyWith(type: type);
-                    }),
-                  ),
-                  const Gap(8),
-                ],
                 _FilterChip(
                   icon: Icons.category_outlined,
                   label: selectedCategory?.name ?? 'Category',
@@ -190,8 +193,11 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                             ? 'No transactions yet'
                             : 'No matching transactions',
                         message: all.isEmpty
-                            ? 'Record your first income or expense to see it here.'
+                            ? 'Start by adding your first income or expense to see your records here.'
                             : 'Try a different search, date range or category.',
+                        actionLabel: all.isEmpty ? 'Add Transaction' : null,
+                        onAction: () => context.push(AppRoutes.newTransactionOf(
+                            TransactionType.expense.name)),
                       ),
                     ),
                   );

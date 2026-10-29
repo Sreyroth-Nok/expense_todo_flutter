@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/locale_provider.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -13,6 +16,8 @@ import '../../../features/auth/data/auth_repository.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/app_logo.dart';
 import '../../../shared/widgets/app_states.dart';
+import '../../../shared/widgets/progress_bar.dart';
+import '../../../shared/widgets/ui_kit.dart';
 import '../../budgets/domain/budget_providers.dart';
 import '../../budgets/presentation/widgets/budget_progress_card.dart';
 import '../../calendar/domain/calendar_providers.dart';
@@ -21,22 +26,38 @@ import '../../reminders/domain/reminder_providers.dart';
 import '../../savings/domain/savings_providers.dart';
 import '../../savings/presentation/widgets/savings_goal_card.dart';
 import '../../spending_limits/domain/spending_limit.dart';
+import '../../spending_limits/domain/spending_limit_calculator.dart';
 import '../../spending_limits/domain/spending_limit_providers.dart';
 import '../../spending_limits/presentation/spending_limits_screen.dart';
 import '../../spending_limits/presentation/widgets/limit_progress_card.dart';
-import '../../transactions/domain/finance_summary.dart';
-import '../../transactions/domain/finance_transaction.dart';
-import '../../transactions/domain/transaction_providers.dart';
 import '../../tasks/domain/planner_task.dart';
 import '../../tasks/domain/task_providers.dart';
 import '../../tasks/presentation/widgets/task_tile.dart';
+import '../../transactions/domain/finance_summary.dart';
+import '../../transactions/domain/finance_transaction.dart';
+import '../../transactions/domain/transaction_providers.dart';
 import '../../transactions/presentation/widgets/transaction_tile.dart';
 import '../domain/dashboard_providers.dart';
-import '../../../core/l10n/l10n.dart';
 
-/// Home dashboard: this month's money summary, today's spending, spending
-/// limits, quick actions, recent transactions, the week ahead (tasks,
-/// events, bills), budgets and savings goals.
+/// Remembers whether the user hid amounts on the dashboard (eye button).
+class HideAmountsNotifier extends Notifier<bool> {
+  static const _key = 'hide_amounts';
+
+  @override
+  bool build() => ref.watch(sharedPreferencesProvider).getBool(_key) ?? false;
+
+  void toggle() {
+    state = !state;
+    ref.read(sharedPreferencesProvider).setBool(_key, state);
+  }
+}
+
+final hideAmountsProvider =
+    NotifierProvider<HideAmountsNotifier, bool>(HideAmountsNotifier.new);
+
+/// Home dashboard: balance card, spending this month, quick actions,
+/// today's spending, daily limit, recent transactions, the week ahead,
+/// budgets and savings goals.
 ///
 /// All numbers come from live Firestore streams for the signed-in user —
 /// no sample data is ever shown.
@@ -55,26 +76,46 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const AppLogo(size: 28, showText: true),
-      ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
           children: [
+            // ── Header ───────────────────────────────────────────
+            Row(
+              children: [
+                const AppLogo(size: 30, horizontal: true),
+                const Spacer(),
+                IconButton(
+                  tooltip: l.plannerReminders,
+                  icon: const Icon(Icons.notifications_none_rounded),
+                  onPressed: () => context.go(AppRoutes.planner),
+                ),
+                GestureDetector(
+                  onTap: () => context.go(AppRoutes.settings),
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: AppColors.softTeal,
+                    child: Text(
+                      displayName.isEmpty
+                          ? '?'
+                          : displayName.substring(0, 1).toUpperCase(),
+                      style: AppTextStyles.titleMedium
+                          .copyWith(color: AppColors.primaryDark),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Gap(14),
             Text(
               l.homeGreeting(displayName.split(' ').first),
-              style: AppTextStyles.headlineLarge,
+              style: AppTextStyles.headlineMedium,
             ),
-            const Gap(4),
             Text(
               AppDateUtils.formatDay(DateTime.now()),
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySmall,
             ),
-            const Gap(20),
-            const _QuickActions(),
-            const Gap(24),
+            const Gap(14),
             dashboardAsync.when(
               loading: () => const LoadingState(),
               error: (e, _) => ErrorState(error: e),
@@ -98,38 +139,77 @@ class _DashboardBody extends ConsumerWidget {
     final statuses = ref.watch(limitStatusesProvider).value ?? const {};
     final categories = ref.watch(categoriesProvider).value ?? const [];
     final categoryById = {for (final c in categories) c.id: c};
+    final preferred = ref.watch(currentUserProfileProvider).value?.currency ?? 'USD';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // ── Month summary ──────────────────────────────────────────
         const _MonthSelector(),
-        const Gap(8),
-        _SummaryCard(summary: data.summary),
-        const Gap(16),
-
-        // ── Today ──────────────────────────────────────────────────
-        _TodayCard(todaySpending: data.todaySpending),
-        const Gap(24),
-
-        // ── Spending limits ────────────────────────────────────────
-        SectionTitle(
-          title: l.homeSpendingLimits,
-          actionLabel: l.commonManage,
-          onAction: () => context.go(AppRoutes.spendingLimits),
+        const Gap(6),
+        _BalanceCard(summary: data.summary, preferredCurrency: preferred)
+            .animate()
+            .fadeIn(duration: 350.ms)
+            .slideY(begin: 0.05),
+        const Gap(14),
+        _SpendingThisMonth(
+          summary: data.summary,
+          monthly: statuses[LimitPeriod.monthly],
+          preferredCurrency: preferred,
         ),
-        const Gap(4),
-        for (final period in LimitPeriod.values) ...[
-          if (statuses[period] case final status?)
-            LimitProgressCard(
-              status: status,
-              onTap: () => context.go(AppRoutes.spendingLimits),
-            )
-          else
-            SetLimitCard(period: period),
-          const Gap(12),
-        ],
+        const Gap(18),
+
+        // ── Quick actions ──────────────────────────────────────────
+        Row(
+          children: [
+            Expanded(
+              child: RoundAction(
+                icon: Icons.south_west_rounded,
+                label: l.quickAddIncome,
+                color: AppColors.success,
+                onTap: () => context.push(
+                    AppRoutes.newTransactionOf(TransactionType.income.name)),
+              ),
+            ),
+            Expanded(
+              child: RoundAction(
+                icon: Icons.north_east_rounded,
+                label: l.quickAddExpense,
+                color: AppColors.warning,
+                onTap: () => context.push(
+                    AppRoutes.newTransactionOf(TransactionType.expense.name)),
+              ),
+            ),
+            Expanded(
+              child: RoundAction(
+                icon: Icons.add_task_rounded,
+                label: l.quickAddTask,
+                color: AppColors.primary,
+                onTap: () => context.push(AppRoutes.newTask),
+              ),
+            ),
+            Expanded(
+              child: RoundAction(
+                icon: Icons.shopping_basket_rounded,
+                label: l.quickShoppingList,
+                color: AppColors.primaryDark,
+                onTap: () => context.go(AppRoutes.lists),
+              ),
+            ),
+          ],
+        ),
+        const Gap(18),
+
+        // ── Today + daily limit ────────────────────────────────────
+        _TodayCard(todaySpending: data.todaySpending),
         const Gap(12),
+        if (statuses[LimitPeriod.daily] case final daily?)
+          LimitProgressCard(
+            status: daily,
+            onTap: () => context.go(AppRoutes.spendingLimits),
+          )
+        else
+          const SetLimitCard(period: LimitPeriod.daily),
+        const Gap(24),
 
         // ── Recent transactions ────────────────────────────────────
         SectionTitle(
@@ -182,10 +262,8 @@ class _MonthSelector extends ConsumerWidget {
     return Row(
       children: [
         Expanded(
-          child: Text(
-            AppDateUtils.formatMonth(month.start),
-            style: AppTextStyles.titleLarge,
-          ),
+          child: Text(AppDateUtils.formatMonth(month.start),
+              style: AppTextStyles.titleLarge),
         ),
         IconButton(
           icon: const Icon(Icons.chevron_left_rounded),
@@ -202,127 +280,224 @@ class _MonthSelector extends ConsumerWidget {
   }
 }
 
-/// Income, expenses and net for the selected month — one block per currency.
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.summary});
+/// Deep Teal card: net balance of the month, income and expenses, with an
+/// eye button that hides the amounts (privacy in public places).
+///
+/// Currencies are never mixed: with several currencies, small chips switch
+/// between them.
+class _BalanceCard extends ConsumerStatefulWidget {
+  const _BalanceCard({required this.summary, required this.preferredCurrency});
 
   final FinanceSummary summary;
+  final String preferredCurrency;
+
+  @override
+  ConsumerState<_BalanceCard> createState() => _BalanceCardState();
+}
+
+class _BalanceCardState extends ConsumerState<_BalanceCard> {
+  String? _currency;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    if (summary.isEmpty) {
-      return AppCard(
-        color: AppColors.softTeal,
-        borderColor: AppColors.softTeal,
-        child: Row(
-          children: [
-            const Icon(Icons.account_balance_wallet_rounded,
-                color: AppColors.primary, size: 32),
-            const Gap(12),
-            Expanded(
-              child: Text(
-                l.homeNoTransactionsMonth,
-                style: AppTextStyles.bodyMedium
-                    .copyWith(color: AppColors.primaryDark),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+    final hidden = ref.watch(hideAmountsProvider);
+    final currencies = widget.summary.byCurrency.keys.toList();
+    final currency = currencies.contains(_currency)
+        ? _currency!
+        : (currencies.isNotEmpty ? currencies.first : widget.preferredCurrency);
+    final totals = widget.summary.byCurrency[currency] ??
+        CurrencyTotals(currency: currency);
 
-    final blocks = summary.byCurrency.values.toList();
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    String amount(int minor, {bool signed = false}) =>
+        hidden ? '••••••' : Money.format(minor, currency, signed: signed);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withAlpha(70),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
         children: [
-          for (var i = 0; i < blocks.length; i++) ...[
-            if (i > 0) ...[const Gap(12), const Divider(), const Gap(12)],
-            if (blocks.length > 1)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: AppBadge(
-                    label: blocks[i].currency, color: AppColors.primary),
-              ),
-            Row(
+          // Decorative circles.
+          Positioned(
+            right: -40,
+            top: -50,
+            child: _Circle(size: 150, color: Colors.white.withAlpha(18)),
+          ),
+          Positioned(
+            right: 40,
+            bottom: -60,
+            child: _Circle(size: 120, color: AppColors.honey.withAlpha(40)),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 12, 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _Figure(
-                    label: l.homeIncome,
-                    value:
-                        Money.format(blocks[i].incomeMinor, blocks[i].currency),
-                    color: AppColors.success,
-                    icon: Icons.south_west_rounded,
+                Row(
+                  children: [
+                    Text(
+                      l.homeBalanceThisMonth,
+                      style: AppTextStyles.labelLarge
+                          .copyWith(color: Colors.white.withAlpha(220)),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      tooltip: hidden ? l.homeShowAmounts : l.homeHideAmounts,
+                      onPressed: ref.read(hideAmountsProvider.notifier).toggle,
+                      icon: Icon(
+                        hidden
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    amount(totals.netMinor),
+                    style: AppTextStyles.displayLarge.copyWith(
+                      color: Colors.white,
+                      fontSize: 34,
+                    ),
                   ),
                 ),
-                Expanded(
-                  child: _Figure(
-                    label: l.homeExpenses,
-                    value: Money.format(
-                        blocks[i].expenseMinor, blocks[i].currency),
-                    color: AppColors.textPrimary,
-                    icon: Icons.north_east_rounded,
+                if (currencies.length > 1) ...[
+                  const Gap(8),
+                  Wrap(
+                    spacing: 6,
+                    children: [
+                      for (final c in currencies)
+                        GestureDetector(
+                          onTap: () => setState(() => _currency = c),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: c == currency
+                                  ? Colors.white
+                                  : Colors.white.withAlpha(40),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              c,
+                              style: AppTextStyles.labelSmall.copyWith(
+                                color: c == currency
+                                    ? AppColors.primaryDark
+                                    : Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
+                ],
+                const Gap(16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _CardFigure(
+                        icon: Icons.south_west_rounded,
+                        iconColor: AppColors.success,
+                        label: l.homeIncome,
+                        value: amount(totals.incomeMinor),
+                      ),
+                    ),
+                    Expanded(
+                      child: _CardFigure(
+                        icon: Icons.north_east_rounded,
+                        iconColor: AppColors.error,
+                        label: l.homeExpenses,
+                        value: amount(totals.expenseMinor),
+                      ),
+                    ),
+                  ],
                 ),
+                if (widget.summary.isEmpty) ...[
+                  const Gap(12),
+                  Text(
+                    l.homeNoTransactionsMonth,
+                    style: AppTextStyles.bodySmall
+                        .copyWith(color: Colors.white.withAlpha(210)),
+                  ),
+                ],
               ],
             ),
-            const Gap(12),
-            _Figure(
-              label: l.homeNet,
-              value: Money.format(blocks[i].netMinor, blocks[i].currency,
-                  signed: true),
-              color: blocks[i].netMinor >= 0
-                  ? AppColors.success
-                  : AppColors.error,
-              large: true,
-            ),
-          ],
+          ),
         ],
       ),
     );
   }
 }
 
-class _Figure extends StatelessWidget {
-  const _Figure({
+class _Circle extends StatelessWidget {
+  const _Circle({required this.size, required this.color});
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      );
+}
+
+class _CardFigure extends StatelessWidget {
+  const _CardFigure({
+    required this.icon,
+    required this.iconColor,
     required this.label,
     required this.value,
-    required this.color,
-    this.icon,
-    this.large = false,
   });
 
+  final IconData icon;
+  final Color iconColor;
   final String label;
   final String value;
-  final Color color;
-  final IconData? icon;
-  final bool large;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Row(
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 14, color: color),
-              const Gap(4),
-            ],
-            Text(label, style: AppTextStyles.labelMedium),
-          ],
+        Container(
+          width: 30,
+          height: 30,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 16, color: iconColor),
         ),
-        const Gap(4),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
-          child: Text(
-            value,
-            style: (large
-                    ? AppTextStyles.headlineLarge
-                    : AppTextStyles.headlineSmall)
-                .copyWith(color: color),
+        const Gap(8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label,
+                  style: AppTextStyles.labelSmall
+                      .copyWith(color: Colors.white.withAlpha(210))),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(value,
+                    style: AppTextStyles.titleMedium
+                        .copyWith(color: Colors.white)),
+              ),
+            ],
           ),
         ),
       ],
@@ -330,19 +505,107 @@ class _Figure extends StatelessWidget {
   }
 }
 
-class _TodayCard extends StatelessWidget {
+/// "Spending this month — $1,250 / $2,000 · 62%" against the monthly limit.
+class _SpendingThisMonth extends ConsumerWidget {
+  const _SpendingThisMonth({
+    required this.summary,
+    required this.monthly,
+    required this.preferredCurrency,
+  });
+
+  final FinanceSummary summary;
+  final LimitStatus? monthly;
+  final String preferredCurrency;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final hidden = ref.watch(hideAmountsProvider);
+    final status = monthly;
+
+    if (status == null) {
+      final spent =
+          summary.byCurrency[preferredCurrency]?.expenseMinor ?? 0;
+      return AppCard(
+        onTap: () => context.push(AppRoutes.editLimit(LimitPeriod.monthly.name)),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.homeSpendingThisMonth,
+                      style: AppTextStyles.titleMedium),
+                  const Gap(2),
+                  Text(l.homeNoMonthlyTarget, style: AppTextStyles.bodySmall),
+                ],
+              ),
+            ),
+            Text(
+              hidden ? '••••' : Money.format(spent, preferredCurrency),
+              style: AppTextStyles.titleLarge,
+            ),
+          ],
+        ),
+      );
+    }
+
+    final percent = (status.progress * 100).round();
+    final currency = status.limit.currency;
+    return AppCard(
+      onTap: () => context.go(AppRoutes.spendingLimits),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l.homeSpendingThisMonth, style: AppTextStyles.titleMedium),
+          const Gap(10),
+          ProgressBar(
+            value: status.progress,
+            color: status.level.barColor,
+            height: 10,
+          ),
+          const Gap(8),
+          Row(
+            children: [
+              Text(
+                hidden
+                    ? '•••• / ••••'
+                    : '${Money.format(status.spentMinor, currency)} / '
+                        '${Money.format(status.limit.amountMinor, currency)}',
+                style: AppTextStyles.bodySmall,
+              ),
+              const Spacer(),
+              Text(
+                '$percent%',
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: status.level.color,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TodayCard extends ConsumerWidget {
   const _TodayCard({required this.todaySpending});
 
   final FinanceSummary todaySpending;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
+    final hidden = ref.watch(hideAmountsProvider);
     final text = todaySpending.isEmpty
         ? l.homeNoSpendingToday
-        : todaySpending.byCurrency.values
-            .map((t) => Money.format(t.expenseMinor, t.currency))
-            .join('  ·  ');
+        : hidden
+            ? '••••'
+            : todaySpending.byCurrency.values
+                .map((t) => Money.format(t.expenseMinor, t.currency))
+                .join('  ·  ');
 
     return AppCard(
       child: Row(
@@ -368,79 +631,6 @@ class _TodayCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _QuickActions extends StatelessWidget {
-  const _QuickActions();
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return Row(
-      children: [
-        _QuickAction(
-          icon: Icons.add_card_rounded,
-          label: l.quickIncome,
-          color: AppColors.success,
-          onTap: () => context.push(
-              AppRoutes.newTransactionOf(TransactionType.income.name)),
-        ),
-        _QuickAction(
-          icon: Icons.shopping_cart_checkout_rounded,
-          label: l.quickExpense,
-          color: AppColors.primary,
-          onTap: () => context.push(
-              AppRoutes.newTransactionOf(TransactionType.expense.name)),
-        ),
-        _QuickAction(
-          icon: Icons.task_alt_rounded,
-          label: l.quickTask,
-          color: AppColors.warning,
-          onTap: () => context.push(AppRoutes.newTask),
-        ),
-        _QuickAction(
-          icon: Icons.checklist_rounded,
-          label: l.quickShopping,
-          color: AppColors.primaryDark,
-          onTap: () => context.go(AppRoutes.lists),
-        ),
-      ],
-    );
-  }
-}
-
-class _QuickAction extends StatelessWidget {
-  const _QuickAction({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: AppCard(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          onTap: onTap,
-          child: Column(
-            children: [
-              Icon(icon, color: color),
-              const Gap(6),
-              Text(label, style: AppTextStyles.labelMedium),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -486,10 +676,7 @@ class _PlannerPreview extends ConsumerWidget {
         ),
         if (nextTasks.isEmpty && nextEvents.isEmpty && bills.isEmpty)
           AppCard(
-            child: Text(
-              l.homeNothingThisWeek,
-              style: AppTextStyles.bodySmall,
-            ),
+            child: Text(l.homeNothingThisWeek, style: AppTextStyles.bodySmall),
           )
         else
           AppCard(
@@ -565,8 +752,7 @@ class _GoalsPreview extends ConsumerWidget {
               : context.go(AppRoutes.budgets),
         ),
         if (budgets.isEmpty)
-          Text(l.homeNoActiveBudget,
-              style: AppTextStyles.bodySmall),
+          Text(l.homeNoActiveBudget, style: AppTextStyles.bodySmall),
         for (final b in budgets) ...[
           BudgetProgressCard(
             budget: b,

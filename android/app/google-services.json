@@ -12,7 +12,20 @@
           "package_name": "com.lifemate.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "704724146672-4c3dicmchnj1jhstlqb1r6fvd5tkf1e4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lifemate.app",
+            "certificate_hash": "d13d51cb43f51709bb5a809d3d285c6ac67961f9"
+          }
+        },
+        {
+          "client_id": "704724146672-bjpgebdo3hcncprhome4v1dmgvlt52oc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCUvW6nHoID9jzUSs9fOoWCe-viQpD3iyM"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "704724146672-bjpgebdo3hcncprhome4v1dmgvlt52oc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

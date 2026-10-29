@@ -10,6 +10,7 @@ import '../../../../core/utils/date_utils.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/app_snack_bar.dart';
 import '../../../../shared/widgets/app_states.dart';
+import '../../../../shared/widgets/ui_kit.dart';
 import '../../../auth/data/auth_repository.dart';
 import '../../data/task_repository.dart';
 import '../../domain/planner_task.dart';
@@ -59,11 +60,9 @@ class TaskTile extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: [
-            Checkbox(
-              value: task.isDone,
-              activeColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6)),
+            RoundCheck(
+              checked: task.isDone,
+              semanticLabel: task.title,
               onChanged: (_) => _toggle(context, ref),
             ),
             Expanded(

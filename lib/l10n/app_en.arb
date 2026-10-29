@@ -1,14 +1,11 @@
 {
   "@@locale": "en",
-
   "appName": "LifeMate",
-
   "navHome": "Home",
   "navFinance": "Finance",
   "navPlanner": "Planner",
   "navLists": "Lists",
   "navSettings": "Settings",
-
   "commonCancel": "Cancel",
   "commonSave": "Save",
   "commonDelete": "Delete",
@@ -21,12 +18,10 @@
   "commonAll": "All",
   "commonSaved": "Saved.",
   "commonOverdue": "Overdue",
-
   "errorPermissionDenied": "You do not have permission to access this data.",
   "errorIndexBuilding": "A database index is still being created. Try again in a few minutes.",
   "errorNetwork": "Cannot reach the server. Check your internet connection.",
   "errorUnexpected": "Unexpected error. Please try again.",
-
   "validationEmailRequired": "Email address is required.",
   "validationEmailInvalid": "Enter a valid email address.",
   "validationPasswordRequired": "Password is required.",
@@ -39,14 +34,31 @@
   "validationNameTooShort": "Name must be at least 2 characters.",
   "validationNameTooLong": "Name must be 50 characters or fewer.",
   "validationRequired": "{field} is required.",
-  "@validationRequired": { "placeholders": { "field": { "type": "String" } } },
+  "@validationRequired": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
   "validationAmountRequired": "Amount is required.",
   "validationAmountWhole": "Enter a whole number (no decimals for {currency}).",
-  "@validationAmountWhole": { "placeholders": { "currency": { "type": "String" } } },
+  "@validationAmountWhole": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "validationAmountDecimals": "Enter a valid amount with up to {decimals} decimals.",
-  "@validationAmountDecimals": { "placeholders": { "decimals": { "type": "int" } } },
+  "@validationAmountDecimals": {
+    "placeholders": {
+      "decimals": {
+        "type": "int"
+      }
+    }
+  },
   "validationAmountPositive": "Amount must be greater than zero.",
-
   "authUserNotFound": "No account found with this email address.",
   "authWrongPassword": "Incorrect password. Please try again.",
   "authInvalidCredential": "Incorrect email or password. Please try again.",
@@ -59,22 +71,26 @@
   "authRequiresRecentLogin": "For security, please log out and log in again before this action.",
   "authNetwork": "Network error. Check your internet connection.",
   "authGeneric": "Authentication error: {message}",
-  "@authGeneric": { "placeholders": { "message": { "type": "String" } } },
-
-  "onboardingTitle1": "Manage Your Money",
-  "onboardingBody1": "Track income and expenses, set spending limits, and reach your savings goals — all in one place.",
-  "onboardingTitle2": "Plan Every Day",
-  "onboardingBody2": "Organise tasks, schedule events, set reminders, and never miss an important bill again.",
-  "onboardingTitle3": "Stay Organised",
-  "onboardingBody3": "Create shopping lists, track your budget categories, and get clear reports on your spending habits.",
+  "@authGeneric": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingTitle1": "Take control\nof your finances",
+  "onboardingBody1": "Track your income, expenses, budgets and achieve your goals — all in one place.",
+  "onboardingTitle2": "Stay on top\nof your day",
+  "onboardingBody2": "Manage tasks, calendar events, reminders and shopping lists for a better you.",
+  "onboardingTitle3": "Spend smart,\nsave more",
+  "onboardingBody3": "Set daily and monthly limits and savings goals, and get a gentle alert before you overspend.",
   "onboardingSkip": "Skip",
   "onboardingNext": "Next",
   "onboardingGetStarted": "Get Started",
   "authAlreadyHaveAccount": "Already have an account?",
   "authLogIn": "Log In",
-
-  "loginTitle": "Welcome back",
-  "loginSubtitle": "Sign in to your LifeMate account.",
+  "loginTitle": "Welcome back!",
+  "loginSubtitle": "Sign in to continue",
   "fieldEmail": "Email address",
   "fieldEmailHint": "you@example.com",
   "fieldPassword": "Password",
@@ -82,8 +98,7 @@
   "loginNoAccount": "Don't have an account?",
   "loginCreateOne": "Create one",
   "loginFailed": "Login failed. Please try again.",
-
-  "registerTitle": "Create account",
+  "registerTitle": "Create your account",
   "registerSubtitle": "Start managing your money and daily life.",
   "registerBackToLogin": "Back to login",
   "fieldFullName": "Full name",
@@ -94,7 +109,6 @@
   "registerButton": "Create Account",
   "registerFailed": "Registration failed. Please try again.",
   "registerPasswordRules": "Password must be at least 8 characters, include one uppercase letter and one number.",
-
   "forgotTitle": "Reset Password",
   "forgotHeadline": "Forgot your password?",
   "forgotBody": "Enter the email address associated with your account and we'll send you a password reset link.",
@@ -104,9 +118,14 @@
   "forgotFailed": "Failed to send reset email.",
   "forgotCheckInbox": "Check your inbox",
   "forgotCheckInboxBody": "We've sent a password reset link to your email address. Click the link to set a new password.",
-
   "homeGreeting": "Hi, {name} 👋",
-  "@homeGreeting": { "placeholders": { "name": { "type": "String" } } },
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "homeTodaysSpending": "Today's spending",
   "homeNoSpendingToday": "No spending yet today",
   "homeIncome": "Income",
@@ -116,7 +135,13 @@
   "homeSpendingLimits": "Spending limits",
   "homeRecentTransactions": "Recent transactions",
   "homeNothingRecorded": "Nothing recorded in {month}",
-  "@homeNothingRecorded": { "placeholders": { "month": { "type": "String" } } },
+  "@homeNothingRecorded": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
   "homeNothingRecordedBody": "Add an income or expense to start tracking your money.",
   "homeComingUp": "Coming up this week",
   "homeNothingThisWeek": "No tasks, events or bills in the next 7 days.",
@@ -130,7 +155,6 @@
   "quickExpense": "Expense",
   "quickTask": "Task",
   "quickShopping": "Shopping",
-
   "financeTitle": "Finance",
   "financeTransactions": "Transactions",
   "financeTransactionsDesc": "Income and expense history, search and filters",
@@ -144,13 +168,11 @@
   "financeSavingsDesc": "Track progress toward your targets",
   "financeReports": "Reports",
   "financeReportsDesc": "Spending by category, CSV export",
-
   "plannerTitle": "Planner",
   "plannerTasks": "Tasks",
   "plannerCalendar": "Calendar",
   "plannerReminders": "Reminders",
   "listsTitle": "Shopping lists",
-
   "settingsTitle": "Settings",
   "settingsAccount": "Account",
   "settingsEditProfile": "Edit profile",
@@ -162,7 +184,13 @@
   "settingsCurrency": "Default currency",
   "settingsTimeZone": "Time zone",
   "settingsTimeZoneAuto": "{zone} · from your phone",
-  "@settingsTimeZoneAuto": { "placeholders": { "zone": { "type": "String" } } },
+  "@settingsTimeZoneAuto": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
   "settingsNotifications": "Notifications",
   "settingsNotificationsDesc": "Alerts, reminders and permissions",
   "settingsPrivacyData": "Privacy & data",
@@ -173,24 +201,32 @@
   "settingsLogOut": "Log out",
   "settingsLogOutConfirm": "Are you sure you want to log out of LifeMate?",
   "settingsVersion": "LifeMate v{version}",
-  "@settingsVersion": { "placeholders": { "version": { "type": "String" } } },
-
+  "@settingsVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "languageEnglish": "English",
   "languageKhmer": "ខ្មែរ (Khmer)",
   "chooseLanguage": "Choose language",
   "chooseCurrency": "Default currency",
   "currencyNote": "Used as the default for new transactions, limits, budgets and goals. Existing records keep their own currency — LifeMate never converts between currencies.",
-
   "timeZoneTitle": "Time zone",
   "timeZoneBody": "LifeMate uses your phone's time zone ({zone}) to decide when a day or month starts — for spending limits, budgets, reports and reminders.\n\nTo use a different time zone, change it in your phone's Date & time settings. LifeMate saves it to your profile automatically.",
-  "@timeZoneBody": { "placeholders": { "zone": { "type": "String" } } },
-
+  "@timeZoneBody": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
   "profileTitle": "Edit profile",
   "profileName": "Display name",
   "profileEmail": "Email",
   "profileEmailNote": "Your email is your login and cannot be changed in the app.",
   "profileSaved": "Profile updated.",
-
   "changePasswordTitle": "Change password",
   "currentPassword": "Current password",
   "newPassword": "New password",
@@ -199,7 +235,6 @@
   "passwordChanged": "Password changed.",
   "newPasswordSame": "The new password must be different from the current one.",
   "changePasswordInfo": "For your security, enter your current password first.",
-
   "notificationsTitle": "Notifications",
   "notificationsPermissionOn": "Notifications are allowed",
   "notificationsPermissionOff": "Notifications are not allowed",
@@ -220,7 +255,6 @@
   "notifySavings": "Savings goals",
   "notifySavingsDesc": "Monthly \"time to save\" reminders",
   "notificationsInAppNote": "Turning a type off only stops pop-up notifications. You still see everything inside the app.",
-
   "privacyTitle": "Privacy information",
   "privacyWhatTitle": "What LifeMate stores",
   "privacyWhatBody": "Your name and email, your preferences, and the data you enter: transactions, categories, limits, budgets, savings goals, tasks, events, reminders and shopping lists. LifeMate never stores your password — Firebase Authentication handles it securely.",
@@ -234,7 +268,6 @@
   "privacyExportBody": "You can export your transactions as a CSV file from Finance → Reports at any time.",
   "privacyDeleteTitle": "Deleting your data",
   "privacyDeleteBody": "Settings → Delete account permanently removes your account and everything you stored. This cannot be undone.",
-
   "deleteTitle": "Delete account",
   "deleteWarning": "This permanently deletes your LifeMate account and ALL of your data. It cannot be undone.",
   "deleteWhatIsDeleted": "Deleted: transactions, categories, spending limits, budgets, savings goals and their history, tasks, calendar events, reminders, shopping lists and your profile.",
@@ -244,5 +277,31 @@
   "deleteConfirmTitle": "Delete everything?",
   "deleteConfirmBody": "Your account and all data will be removed permanently.",
   "deleteInProgress": "Deleting your data…",
-  "deleteDone": "Your account was deleted."
+  "deleteDone": "Your account was deleted.",
+  "appTagline": "Plan Today · Live Better",
+  "authContinueWithGoogle": "Continue with Google",
+  "authOr": "or",
+  "authSignUp": "Sign Up",
+  "authGoogleFailed": "Google sign-in failed. Please try again.",
+  "authGoogleNotConfigured": "Google sign-in is not set up for this app yet. Use email and password for now.",
+  "authAccountExistsDifferentCredential": "This email is already registered with a different sign-in method. Log in with your email and password.",
+  "settingsPasswordGoogle": "You sign in with Google — your password is managed in your Google account.",
+  "deleteGoogleHint": "You signed in with Google. To confirm, choose your Google account again.",
+  "deleteConfirmWithGoogle": "Confirm with Google and delete",
+  "homeBalanceThisMonth": "Balance this month",
+  "homeSpendingThisMonth": "Spending this month",
+  "homeHideAmounts": "Hide amounts",
+  "homeShowAmounts": "Show amounts",
+  "homeNoMonthlyTarget": "Set a monthly limit to track this",
+  "quickAddIncome": "Add Income",
+  "quickAddExpense": "Add Expense",
+  "quickAddTask": "Add Task",
+  "quickShoppingList": "Shopping",
+  "successTransactionTitle": "Transaction Added!",
+  "successTransactionBody": "Your transaction has been recorded successfully.",
+  "successViewTransactions": "View Transactions",
+  "successAddAnother": "Add Another",
+  "successDone": "Done",
+  "settingsExportData": "Export data",
+  "settingsExportDataDesc": "Synced to the cloud automatically · export as CSV"
 }

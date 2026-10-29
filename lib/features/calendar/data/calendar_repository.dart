@@ -19,9 +19,6 @@ class CalendarRepository {
       .collection(AppConstants.colCalendarEvents);
 
   /// Events overlapping [range].
-  ///
-  /// Firestore cannot filter "start < rangeEnd AND end > rangeStart" with
-  /// a single-field index, so we query by start time only, reaching back
   /// [CalendarEvent.maxDurationDays] (the longest allowed event), then
   /// keep the overlapping ones in memory.
   Stream<List<CalendarEvent>> watchRange(String uid, DateRange range) {

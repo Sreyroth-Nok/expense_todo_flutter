@@ -9,6 +9,8 @@ enum TransactionType {
       name == 'income' ? TransactionType.income : TransactionType.expense;
 
   String get label => this == income ? 'Income' : 'Expense';
+
+  bool get isIncomeType => this == income;
 }
 
 /// One income or expense record.

@@ -10,15 +10,11 @@ import '../../../core/utils/money.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/app_snack_bar.dart';
 import '../../../shared/widgets/app_states.dart';
-import '../../../shared/widgets/progress_bar.dart';
 import '../../auth/data/auth_repository.dart';
-import '../../spending_limits/presentation/widgets/limit_progress_card.dart';
-import '../../transactions/domain/transaction_providers.dart';
-import '../../transactions/presentation/widgets/category_visuals.dart';
 import '../data/budget_repository.dart';
 import '../domain/budget.dart';
 import '../domain/budget_providers.dart';
-import 'widgets/budget_progress_card.dart';
+import 'widgets/budget_hero_card.dart';
 
 /// One budget: overall progress and spending per category.
 class BudgetDetailScreen extends ConsumerWidget {
@@ -94,15 +90,13 @@ class _BudgetBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final statusAsync = ref.watch(budgetStatusProvider(budget));
-    final categories = ref.watch(categoriesProvider).value ?? const [];
-    final byId = {for (final c in categories) c.id: c};
 
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        BudgetProgressCard(budget: budget),
+        BudgetHeroCard(budget: budget),
         const Gap(24),
-        Text('By category', style: AppTextStyles.titleLarge),
+        Text('Other spending', style: AppTextStyles.titleLarge),
         const Gap(8),
         statusAsync.when(
           loading: () => const LoadingState(),
@@ -117,32 +111,6 @@ class _BudgetBody extends ConsumerWidget {
                     'the total only.',
                     style: AppTextStyles.bodySmall,
                   ),
-                for (final a in s.allocationStatuses) ...[
-                  Row(
-                    children: [
-                      CategoryIconBadge(
-                        iconKey: byId[a.categoryId]?.iconKey ?? 'other',
-                        colorValue: byId[a.categoryId]?.colorValue ?? 0xFF6B7280,
-                        size: 32,
-                      ),
-                      const Gap(10),
-                      Expanded(
-                        child: Text(
-                          byId[a.categoryId]?.name ?? 'Deleted category',
-                          style: AppTextStyles.titleMedium,
-                        ),
-                      ),
-                      Text(
-                        '${Money.format(a.spentMinor, budget.currency)} / ${Money.format(a.allocatedMinor, budget.currency)}',
-                        style: AppTextStyles.labelLarge
-                            .copyWith(color: a.level.color),
-                      ),
-                    ],
-                  ),
-                  const Gap(8),
-                  ProgressBar(value: a.progress, color: a.level.barColor),
-                  const Gap(16),
-                ],
                 if (s.unallocatedSpentMinor > 0) ...[
                   const Divider(),
                   const Gap(10),

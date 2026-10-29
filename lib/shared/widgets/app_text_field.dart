@@ -27,9 +27,14 @@ class AppTextField extends StatelessWidget {
     this.autofocus = false,
     this.autocorrect = true,
     this.textCapitalization = TextCapitalization.none,
+    this.showLabel = true,
   });
 
   final String label;
+
+  /// false = no label above; the label is shown inside as a hint instead
+  /// (used on the login / register screens).
+  final bool showLabel;
   final String? hint;
   final TextEditingController? controller;
   final String? Function(String?)? validator;
@@ -50,7 +55,7 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
+    final field = TextFormField(
       controller: controller,
       validator: validator,
       keyboardType: keyboardType,
@@ -67,13 +72,34 @@ class AppTextField extends StatelessWidget {
       textCapitalization: textCapitalization,
       style: AppTextStyles.bodyLarge,
       decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
+        hintText: showLabel ? hint : (hint ?? label),
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
-        // Override only the label color; everything else from theme.
-        floatingLabelStyle: AppTextStyles.labelMedium.copyWith(
-          color: AppColors.primary,
+      ),
+    );
+    if (!showLabel) return Semantics(label: label, child: field);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [FieldLabel(label), field],
+    );
+  }
+}
+
+/// Small label shown above a form field.
+class FieldLabel extends StatelessWidget {
+  const FieldLabel(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 2, bottom: 6),
+      child: Text(
+        text,
+        style: AppTextStyles.labelMedium.copyWith(
+          color: AppColors.textSecondary,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -91,6 +117,7 @@ class AppPasswordField extends StatefulWidget {
     this.textInputAction,
     this.focusNode,
     this.onChanged,
+    this.showLabel = true,
   });
 
   final String label;
@@ -100,6 +127,7 @@ class AppPasswordField extends StatefulWidget {
   final TextInputAction? textInputAction;
   final FocusNode? focusNode;
   final ValueChanged<String>? onChanged;
+  final bool showLabel;
 
   @override
   State<AppPasswordField> createState() => _AppPasswordFieldState();
@@ -113,6 +141,7 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
     return AppTextField(
       label: widget.label,
       hint: widget.hint,
+      showLabel: widget.showLabel,
       controller: widget.controller,
       validator: widget.validator,
       textInputAction: widget.textInputAction,
@@ -123,9 +152,7 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
       prefixIcon: const Icon(Icons.lock_outline_rounded),
       suffixIcon: IconButton(
         icon: Icon(
-          _obscure
-              ? Icons.visibility_off_outlined
-              : Icons.visibility_outlined,
+          _obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
           color: AppColors.textSecondary,
         ),
         onPressed: () => setState(() => _obscure = !_obscure),

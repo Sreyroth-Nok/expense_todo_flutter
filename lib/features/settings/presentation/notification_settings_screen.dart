@@ -75,16 +75,16 @@ class _NotificationSettingsScreenState
         ref.watch(currentUserProfileProvider).value?.notificationPreferences ??
             const NotificationPreferences();
 
-    final switches = <(String, String, bool, NotificationPreferences Function(bool))>[
-      (l.notifySpendingLimits, l.notifySpendingLimitsDesc, prefs.spendingLimits,
+    final switches = <(IconData, String, String, bool, NotificationPreferences Function(bool))>[
+      (Icons.speed_rounded, l.notifySpendingLimits, l.notifySpendingLimitsDesc, prefs.spendingLimits,
           (v) => prefs.copyWith(spendingLimits: v)),
-      (l.notifyReminders, l.notifyRemindersDesc, prefs.reminders,
+      (Icons.receipt_long_rounded, l.notifyReminders, l.notifyRemindersDesc, prefs.reminders,
           (v) => prefs.copyWith(reminders: v)),
-      (l.notifyTasks, l.notifyTasksDesc, prefs.tasks,
+      (Icons.task_alt_rounded, l.notifyTasks, l.notifyTasksDesc, prefs.tasks,
           (v) => prefs.copyWith(tasks: v)),
-      (l.notifyEvents, l.notifyEventsDesc, prefs.events,
+      (Icons.event_rounded, l.notifyEvents, l.notifyEventsDesc, prefs.events,
           (v) => prefs.copyWith(events: v)),
-      (l.notifySavings, l.notifySavingsDesc, prefs.savings,
+      (Icons.savings_rounded, l.notifySavings, l.notifySavingsDesc, prefs.savings,
           (v) => prefs.copyWith(savings: v)),
     ];
 
@@ -163,9 +163,18 @@ class _NotificationSettingsScreenState
           // ── Per-kind switches ────────────────────────────────────
           Text(l.notificationsCategories, style: AppTextStyles.titleLarge),
           const Gap(8),
-          for (final (title, desc, value, update) in switches)
+          for (final (icon, title, desc, value, update) in switches)
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
+              secondary: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.honey.withAlpha(40),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: AppColors.warning, size: 20),
+              ),
               value: value,
               activeThumbColor: AppColors.primary,
               title: Text(title, style: AppTextStyles.titleMedium),

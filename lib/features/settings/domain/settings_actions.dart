@@ -25,8 +25,9 @@ class SettingsActions {
     await _auth.logout();
   }
 
-  /// Re-authenticates with [password], deletes all data and the account.
-  Future<void> deleteAccount(String password) async {
+  /// Re-authenticates (with [password], or with Google when it is null),
+  /// deletes all data and the account.
+  Future<void> deleteAccount(String? password) async {
     await _auth.deleteAccount(password: password);
     await _ref.read(notificationServiceProvider).cancelScheduled();
   }

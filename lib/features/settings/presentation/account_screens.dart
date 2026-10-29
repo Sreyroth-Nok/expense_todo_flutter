@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/errors/app_exception.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
@@ -240,6 +241,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
 
   Future<void> _delete() async {
     final l = context.l10n;
+    final usesPassword = ref.read(hasPasswordProvider);
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final ok = await showConfirmDialog(
       context,
@@ -253,10 +255,15 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
     setState(() => _deleting = true);
     final messenger = ScaffoldMessenger.of(context);
     try {
-      await ref.read(settingsActionsProvider).deleteAccount(_password.text);
+      await ref
+          .read(settingsActionsProvider)
+          .deleteAccount(usesPassword ? _password.text : null);
       // The auth redirect moves to the login screen; the messenger outlives
       // this screen so the confirmation is still shown.
       messenger.showSnackBar(SnackBar(content: Text(l.deleteDone)));
+    } on AuthCancelledException {
+      // Closed the Google picker: nothing was deleted.
+      if (mounted) setState(() => _deleting = false);
     } catch (e) {
       if (!mounted) return;
       setState(() => _deleting = false);
@@ -267,6 +274,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final usesPassword = ref.watch(hasPasswordProvider);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: Text(l.deleteTitle)),
@@ -301,12 +309,15 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
               label: Text(l.deleteExportHint),
             ),
             const Gap(16),
-            AppPasswordField(
-              label: l.deletePasswordLabel,
-              controller: _password,
-              validator: (v) =>
-                  v == null || v.isEmpty ? l.validationPasswordRequired : null,
-            ),
+            if (usesPassword)
+              AppPasswordField(
+                label: l.deletePasswordLabel,
+                controller: _password,
+                validator: (v) =>
+                    v == null || v.isEmpty ? l.validationPasswordRequired : null,
+              )
+            else
+              Text(l.deleteGoogleHint, style: AppTextStyles.bodyMedium),
             const Gap(28),
             if (_deleting)
               Column(
@@ -320,7 +331,8 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
               ElevatedButton.icon(
                 onPressed: _delete,
                 icon: const Icon(Icons.delete_forever_rounded),
-                label: Text(l.deleteButton),
+                label: Text(
+                    usesPassword ? l.deleteButton : l.deleteConfirmWithGoogle),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.error,
                   foregroundColor: Colors.white,

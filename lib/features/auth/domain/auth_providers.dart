@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/errors/app_exception.dart';
 import '../data/auth_repository.dart';
 
 // ── Auth action state ──────────────────────────────────────────────────────
@@ -122,4 +123,36 @@ class ForgotPasswordNotifier extends Notifier<AuthActionState> {
 final forgotPasswordProvider =
     NotifierProvider<ForgotPasswordNotifier, AuthActionState>(
   ForgotPasswordNotifier.new,
+);
+
+// ── Google sign-in notifier ───────────────────────────────────────────────
+
+/// Signs in with Google. Closing the account picker is not treated as an
+/// error. Navigation happens through GoRouter's auth redirect.
+class GoogleSignInNotifier extends Notifier<AuthActionState> {
+  @override
+  AuthActionState build() => const AuthActionState();
+
+  Future<bool> signIn() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      await ref.read(authRepositoryProvider).signInWithGoogle();
+      state = state.copyWith(isLoading: false, isSuccess: true);
+      return true;
+    } on AuthCancelledException {
+      state = state.copyWith(isLoading: false);
+      return false;
+    } on AppException catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: e.message);
+      return false;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+      return false;
+    }
+  }
+}
+
+final googleSignInProvider =
+    NotifierProvider<GoogleSignInNotifier, AuthActionState>(
+  GoogleSignInNotifier.new,
 );

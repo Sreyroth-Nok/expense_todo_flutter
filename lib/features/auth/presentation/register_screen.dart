@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -13,8 +14,9 @@ import '../../../shared/widgets/app_logo.dart';
 import '../../../shared/widgets/app_snack_bar.dart';
 import '../../../shared/widgets/app_text_field.dart';
 import '../domain/auth_providers.dart';
-import '../../../core/l10n/l10n.dart';
+import 'widgets/google_sign_in_button.dart';
 
+/// Create an account with email + password, or with Google.
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
@@ -51,8 +53,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (!mounted) return;
     if (!success) {
       final error = ref.read(registerProvider).errorMessage;
-      AppSnackBar.error(
-          context, error ?? context.l10n.registerFailed);
+      AppSnackBar.error(context, error ?? context.l10n.registerFailed);
     }
     // Navigation handled by GoRouter auth redirect.
   }
@@ -60,169 +61,115 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final authState = ref.watch(registerProvider);
-    final isLoading = authState.isLoading;
+    final isLoading = ref.watch(registerProvider).isLoading;
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: l.registerBackToLogin,
+          onPressed: () => context.go(AppRoutes.login),
+        ),
+      ),
       body: SafeArea(
+        top: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 28),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // ── Back button ──────────────────────────────────
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded),
-                    onPressed: () => context.go(AppRoutes.login),
-                    tooltip: l.registerBackToLogin,
-                  ),
-                ),
-
-                const Gap(8),
-
-                // ── Logo ─────────────────────────────────────────
-                const Center(child: AppLogo(size: 48)),
-                const Gap(28),
-
-                // ── Headline ──────────────────────────────────────
+                const Center(child: AppLogo(size: 56)),
+                const Gap(20),
                 Text(
                   l.registerTitle,
-                  style: AppTextStyles.displayMedium,
-                ).animate().fadeIn(delay: 100.ms),
-                const Gap(6),
+                  style: AppTextStyles.headlineMedium,
+                  textAlign: TextAlign.center,
+                ).animate().fadeIn(),
+                const Gap(4),
                 Text(
                   l.registerSubtitle,
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ).animate().fadeIn(delay: 200.ms),
-
-                const Gap(32),
-
-                // ── Full name ─────────────────────────────────────
+                  style: AppTextStyles.bodyMedium
+                      .copyWith(color: AppColors.textSecondary),
+                  textAlign: TextAlign.center,
+                ),
+                const Gap(24),
                 AppTextField(
                   label: l.fieldFullName,
-                  hint: l.fieldFullNameHint,
+                  showLabel: false,
                   controller: _nameController,
                   validator: AppValidators.displayName,
-                  keyboardType: TextInputType.name,
-                  textInputAction: TextInputAction.next,
                   textCapitalization: TextCapitalization.words,
+                  textInputAction: TextInputAction.next,
                   prefixIcon: const Icon(Icons.person_outline_rounded),
-                ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1),
-
+                ),
                 const Gap(14),
-
-                // ── Email ─────────────────────────────────────────
                 AppTextField(
                   label: l.fieldEmail,
-                  hint: 'you@example.com',
+                  showLabel: false,
                   controller: _emailController,
                   validator: AppValidators.email,
                   keyboardType: TextInputType.emailAddress,
+                  autocorrect: false,
                   textInputAction: TextInputAction.next,
                   prefixIcon: const Icon(Icons.email_outlined),
-                ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1),
-
+                ),
                 const Gap(14),
-
-                // ── Password ──────────────────────────────────────
                 AppPasswordField(
                   label: l.fieldPassword,
-                  hint: l.fieldPasswordHint,
+                  showLabel: false,
                   controller: _passwordController,
                   validator: AppValidators.password,
                   textInputAction: TextInputAction.next,
-                ).animate().fadeIn(delay: 350.ms).slideY(begin: 0.1),
-
+                ),
                 const Gap(14),
-
-                // ── Confirm password ──────────────────────────────
                 AppPasswordField(
                   label: l.fieldConfirmPassword,
-                  hint: l.fieldConfirmPasswordHint,
+                  showLabel: false,
                   controller: _confirmController,
-                  validator: AppValidators.confirmPassword(
-                    _passwordController.text,
-                  ),
+                  validator: (v) =>
+                      AppValidators.confirmPassword(_passwordController.text)(v),
                   textInputAction: TextInputAction.done,
-                ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
-
-                // ── Password hint ─────────────────────────────────
+                ),
                 const Gap(8),
-                _PasswordRequirementsHint()
-                    .animate()
-                    .fadeIn(delay: 420.ms),
-
-                const Gap(28),
-
-                // ── Register button ───────────────────────────────
+                Text(l.registerPasswordRules, style: AppTextStyles.bodySmall),
+                const Gap(24),
                 AppPrimaryButton(
                   label: l.registerButton,
                   onPressed: isLoading ? null : _submit,
                   isLoading: isLoading,
-                ).animate().fadeIn(delay: 450.ms).slideY(begin: 0.15),
-
+                ),
+                const Gap(18),
+                const OrDivider(),
+                const Gap(18),
+                GoogleSignInButton(enabled: !isLoading),
                 const Gap(20),
-
-                // ── Login link ────────────────────────────────────
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '${l.authAlreadyHaveAccount}  ',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
+                      l.authAlreadyHaveAccount,
+                      style: AppTextStyles.bodyMedium
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                    TextButton(
+                      onPressed: () => context.go(AppRoutes.login),
+                      child: Text(
+                        l.authLogIn,
+                        style: AppTextStyles.labelLarge.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                    AppTextLinkButton(
-                      label: l.authLogIn,
-                      onPressed: () => context.go(AppRoutes.login),
-                    ),
                   ],
-                ).animate().fadeIn(delay: 500.ms),
-
-                const Gap(24),
+                ),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Small password requirement hint shown below the password field.
-class _PasswordRequirementsHint extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.softTeal,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.info_outline_rounded,
-              size: 16, color: AppColors.primary),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              l.registerPasswordRules,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.primaryDark,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

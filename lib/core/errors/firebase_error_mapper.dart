@@ -20,6 +20,8 @@ abstract final class FirebaseErrorMapper {
       'operation-not-allowed' => l.authOperationNotAllowed,
       'requires-recent-login' => l.authRequiresRecentLogin,
       'network-request-failed' => l.authNetwork,
+      'account-exists-with-different-credential' =>
+        l.authAccountExistsDifferentCredential,
       _ => l.authGeneric(e.message ?? e.code),
     };
     return AuthException(message);

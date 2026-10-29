@@ -1,14 +1,11 @@
 {
   "@@locale": "km",
-
   "appName": "LifeMate",
-
   "navHome": "ទំព័រដើម",
   "navFinance": "ហិរញ្ញវត្ថុ",
   "navPlanner": "ផែនការ",
   "navLists": "បញ្ជី",
   "navSettings": "ការកំណត់",
-
   "commonCancel": "បោះបង់",
   "commonSave": "រក្សាទុក",
   "commonDelete": "លុប",
@@ -21,12 +18,10 @@
   "commonAll": "ទាំងអស់",
   "commonSaved": "បានរក្សាទុក។",
   "commonOverdue": "ហួសកំណត់",
-
   "errorPermissionDenied": "អ្នកគ្មានសិទ្ធិចូលប្រើទិន្នន័យនេះទេ។",
   "errorIndexBuilding": "កំពុងរៀបចំមូលដ្ឋានទិន្នន័យ។ សូមព្យាយាមម្តងទៀតក្នុងរយៈពេលប៉ុន្មាននាទីទៀត។",
   "errorNetwork": "មិនអាចភ្ជាប់ទៅម៉ាស៊ីនមេបានទេ។ សូមពិនិត្យការតភ្ជាប់អ៊ីនធឺណិត។",
   "errorUnexpected": "មានកំហុសដែលមិនបានរំពឹងទុក។ សូមព្យាយាមម្តងទៀត។",
-
   "validationEmailRequired": "តម្រូវឱ្យបញ្ចូលអាសយដ្ឋានអ៊ីមែល។",
   "validationEmailInvalid": "សូមបញ្ចូលអាសយដ្ឋានអ៊ីមែលឱ្យបានត្រឹមត្រូវ។",
   "validationPasswordRequired": "តម្រូវឱ្យបញ្ចូលពាក្យសម្ងាត់។",
@@ -39,14 +34,31 @@
   "validationNameTooShort": "ឈ្មោះត្រូវមានយ៉ាងហោចណាស់ ២ តួអក្សរ។",
   "validationNameTooLong": "ឈ្មោះមិនត្រូវលើសពី ៥០ តួអក្សរទេ។",
   "validationRequired": "តម្រូវឱ្យបញ្ចូល{field}។",
-  "@validationRequired": { "placeholders": { "field": { "type": "String" } } },
+  "@validationRequired": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
   "validationAmountRequired": "តម្រូវឱ្យបញ្ចូលចំនួនទឹកប្រាក់។",
   "validationAmountWhole": "សូមបញ្ចូលចំនួនគត់ (គ្មានខ្ទង់ទសភាគសម្រាប់ {currency})។",
-  "@validationAmountWhole": { "placeholders": { "currency": { "type": "String" } } },
+  "@validationAmountWhole": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "validationAmountDecimals": "សូមបញ្ចូលចំនួនទឹកប្រាក់ត្រឹមត្រូវ ដែលមានខ្ទង់ទសភាគមិនលើសពី {decimals}។",
-  "@validationAmountDecimals": { "placeholders": { "decimals": { "type": "int" } } },
+  "@validationAmountDecimals": {
+    "placeholders": {
+      "decimals": {
+        "type": "int"
+      }
+    }
+  },
   "validationAmountPositive": "ចំនួនទឹកប្រាក់ត្រូវធំជាងសូន្យ។",
-
   "authUserNotFound": "រកមិនឃើញគណនីដែលប្រើអ៊ីមែលនេះទេ។",
   "authWrongPassword": "ពាក្យសម្ងាត់មិនត្រឹមត្រូវ។ សូមព្យាយាមម្តងទៀត។",
   "authInvalidCredential": "អ៊ីមែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។ សូមព្យាយាមម្តងទៀត។",
@@ -59,22 +71,26 @@
   "authRequiresRecentLogin": "ដើម្បីសុវត្ថិភាព សូមចាកចេញ ហើយចូលម្តងទៀត មុនពេលធ្វើសកម្មភាពនេះ។",
   "authNetwork": "បញ្ហាបណ្តាញ។ សូមពិនិត្យការតភ្ជាប់អ៊ីនធឺណិត។",
   "authGeneric": "កំហុសក្នុងការផ្ទៀងផ្ទាត់៖ {message}",
-  "@authGeneric": { "placeholders": { "message": { "type": "String" } } },
-
-  "onboardingTitle1": "គ្រប់គ្រងប្រាក់របស់អ្នក",
-  "onboardingBody1": "តាមដានចំណូល និងចំណាយ កំណត់ដែនកំណត់ចំណាយ និងសម្រេចគោលដៅសន្សំ — ទាំងអស់នៅកន្លែងតែមួយ។",
-  "onboardingTitle2": "រៀបចំផែនការរាល់ថ្ងៃ",
-  "onboardingBody2": "រៀបចំកិច្ចការ កំណត់ពេលព្រឹត្តិការណ៍ កំណត់ការរំលឹក ហើយកុំភ្លេចបង់វិក្កយបត្រសំខាន់ៗទៀត។",
-  "onboardingTitle3": "រៀបចំឱ្យមានសណ្តាប់ធ្នាប់",
-  "onboardingBody3": "បង្កើតបញ្ជីទិញឥវ៉ាន់ តាមដានប្រភេទថវិកា និងទទួលបានរបាយការណ៍ច្បាស់លាស់អំពីការចំណាយរបស់អ្នក។",
+  "@authGeneric": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingTitle1": "គ្រប់គ្រង\nហិរញ្ញវត្ថុរបស់អ្នក",
+  "onboardingBody1": "តាមដានចំណូល ចំណាយ ថវិកា និងសម្រេចគោលដៅរបស់អ្នក — ទាំងអស់នៅកន្លែងតែមួយ។",
+  "onboardingTitle2": "គ្រប់គ្រង\nថ្ងៃរបស់អ្នក",
+  "onboardingBody2": "គ្រប់គ្រងកិច្ចការ ព្រឹត្តិការណ៍ប្រតិទិន ការរំលឹក និងបញ្ជីទិញឥវ៉ាន់ ដើម្បីជីវិតកាន់តែប្រសើរ។",
+  "onboardingTitle3": "ចំណាយឆ្លាតវៃ\nសន្សំបានច្រើន",
+  "onboardingBody3": "កំណត់ដែនកំណត់ប្រចាំថ្ងៃ និងប្រចាំខែ ព្រមទាំងគោលដៅសន្សំ ហើយទទួលការព្រមានមុនពេលចំណាយលើស។",
   "onboardingSkip": "រំលង",
   "onboardingNext": "បន្ទាប់",
   "onboardingGetStarted": "ចាប់ផ្តើម",
   "authAlreadyHaveAccount": "មានគណនីរួចហើយមែនទេ?",
   "authLogIn": "ចូល",
-
-  "loginTitle": "សូមស្វាគមន៍ការត្រឡប់មកវិញ",
-  "loginSubtitle": "ចូលទៅក្នុងគណនី LifeMate របស់អ្នក។",
+  "loginTitle": "សូមស្វាគមន៍ការត្រឡប់មកវិញ!",
+  "loginSubtitle": "ចូលគណនីដើម្បីបន្ត",
   "fieldEmail": "អាសយដ្ឋានអ៊ីមែល",
   "fieldEmailHint": "you@example.com",
   "fieldPassword": "ពាក្យសម្ងាត់",
@@ -82,8 +98,7 @@
   "loginNoAccount": "មិនទាន់មានគណនី?",
   "loginCreateOne": "បង្កើតគណនី",
   "loginFailed": "ការចូលបរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
-
-  "registerTitle": "បង្កើតគណនី",
+  "registerTitle": "បង្កើតគណនីរបស់អ្នក",
   "registerSubtitle": "ចាប់ផ្តើមគ្រប់គ្រងប្រាក់ និងជីវិតប្រចាំថ្ងៃរបស់អ្នក។",
   "registerBackToLogin": "ត្រឡប់ទៅទំព័រចូល",
   "fieldFullName": "ឈ្មោះពេញ",
@@ -94,7 +109,6 @@
   "registerButton": "បង្កើតគណនី",
   "registerFailed": "ការចុះឈ្មោះបរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
   "registerPasswordRules": "ពាក្យសម្ងាត់ត្រូវមានយ៉ាងហោចណាស់ ៨ តួអក្សរ មានអក្សរធំមួយ និងលេខមួយ។",
-
   "forgotTitle": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
   "forgotHeadline": "ភ្លេចពាក្យសម្ងាត់?",
   "forgotBody": "បញ្ចូលអាសយដ្ឋានអ៊ីមែលនៃគណនីរបស់អ្នក យើងនឹងផ្ញើតំណសម្រាប់កំណត់ពាក្យសម្ងាត់ឡើងវិញ។",
@@ -104,9 +118,14 @@
   "forgotFailed": "មិនអាចផ្ញើអ៊ីមែលកំណត់ពាក្យសម្ងាត់ឡើងវិញបានទេ។",
   "forgotCheckInbox": "ពិនិត្យប្រអប់សំបុត្ររបស់អ្នក",
   "forgotCheckInboxBody": "យើងបានផ្ញើតំណកំណត់ពាក្យសម្ងាត់ឡើងវិញទៅអ៊ីមែលរបស់អ្នក។ សូមចុចតំណនោះដើម្បីកំណត់ពាក្យសម្ងាត់ថ្មី។",
-
   "homeGreeting": "សួស្តី {name} 👋",
-  "@homeGreeting": { "placeholders": { "name": { "type": "String" } } },
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "homeTodaysSpending": "ចំណាយថ្ងៃនេះ",
   "homeNoSpendingToday": "មិនទាន់មានការចំណាយថ្ងៃនេះទេ",
   "homeIncome": "ចំណូល",
@@ -116,7 +135,13 @@
   "homeSpendingLimits": "ដែនកំណត់ចំណាយ",
   "homeRecentTransactions": "ប្រតិបត្តិការថ្មីៗ",
   "homeNothingRecorded": "មិនមានកំណត់ត្រាក្នុង {month}",
-  "@homeNothingRecorded": { "placeholders": { "month": { "type": "String" } } },
+  "@homeNothingRecorded": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
   "homeNothingRecordedBody": "បញ្ចូលចំណូល ឬចំណាយ ដើម្បីចាប់ផ្តើមតាមដានប្រាក់របស់អ្នក។",
   "homeComingUp": "សប្តាហ៍នេះ",
   "homeNothingThisWeek": "មិនមានកិច្ចការ ព្រឹត្តិការណ៍ ឬវិក្កយបត្រក្នុង ៧ ថ្ងៃខាងមុខទេ។",
@@ -130,7 +155,6 @@
   "quickExpense": "ចំណាយ",
   "quickTask": "កិច្ចការ",
   "quickShopping": "ទិញឥវ៉ាន់",
-
   "financeTitle": "ហិរញ្ញវត្ថុ",
   "financeTransactions": "ប្រតិបត្តិការ",
   "financeTransactionsDesc": "ប្រវត្តិចំណូល និងចំណាយ ការស្វែងរក និងតម្រង",
@@ -144,13 +168,11 @@
   "financeSavingsDesc": "តាមដានវឌ្ឍនភាពឆ្ពោះទៅគោលដៅ",
   "financeReports": "របាយការណ៍",
   "financeReportsDesc": "ចំណាយតាមប្រភេទ និងនាំចេញជា CSV",
-
   "plannerTitle": "ផែនការ",
   "plannerTasks": "កិច្ចការ",
   "plannerCalendar": "ប្រតិទិន",
   "plannerReminders": "ការរំលឹក",
   "listsTitle": "បញ្ជីទិញឥវ៉ាន់",
-
   "settingsTitle": "ការកំណត់",
   "settingsAccount": "គណនី",
   "settingsEditProfile": "កែប្រែប្រវត្តិរូប",
@@ -162,7 +184,13 @@
   "settingsCurrency": "រូបិយប័ណ្ណលំនាំដើម",
   "settingsTimeZone": "តំបន់ពេលវេលា",
   "settingsTimeZoneAuto": "{zone} · តាមទូរស័ព្ទរបស់អ្នក",
-  "@settingsTimeZoneAuto": { "placeholders": { "zone": { "type": "String" } } },
+  "@settingsTimeZoneAuto": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
   "settingsNotifications": "ការជូនដំណឹង",
   "settingsNotificationsDesc": "ការជូនដំណឹង ការរំលឹក និងការអនុញ្ញាត",
   "settingsPrivacyData": "ឯកជនភាព និងទិន្នន័យ",
@@ -173,24 +201,32 @@
   "settingsLogOut": "ចាកចេញ",
   "settingsLogOutConfirm": "តើអ្នកប្រាកដជាចង់ចាកចេញពី LifeMate មែនទេ?",
   "settingsVersion": "LifeMate កំណែ {version}",
-  "@settingsVersion": { "placeholders": { "version": { "type": "String" } } },
-
+  "@settingsVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "languageEnglish": "English (អង់គ្លេស)",
   "languageKhmer": "ខ្មែរ",
   "chooseLanguage": "ជ្រើសរើសភាសា",
   "chooseCurrency": "រូបិយប័ណ្ណលំនាំដើម",
   "currencyNote": "ប្រើជាលំនាំដើមសម្រាប់ប្រតិបត្តិការ ដែនកំណត់ ថវិកា និងគោលដៅថ្មីៗ។ កំណត់ត្រាដែលមានស្រាប់រក្សារូបិយប័ណ្ណរបស់វាដដែល — LifeMate មិនដែលប្តូររូបិយប័ណ្ណទេ។",
-
   "timeZoneTitle": "តំបន់ពេលវេលា",
   "timeZoneBody": "LifeMate ប្រើតំបន់ពេលវេលារបស់ទូរស័ព្ទអ្នក ({zone}) ដើម្បីកំណត់ពេលចាប់ផ្តើមថ្ងៃ ឬខែ — សម្រាប់ដែនកំណត់ចំណាយ ថវិកា របាយការណ៍ និងការរំលឹក។\n\nដើម្បីប្រើតំបន់ពេលវេលាផ្សេង សូមប្តូរនៅក្នុងការកំណត់ កាលបរិច្ឆេទ និងម៉ោង របស់ទូរស័ព្ទ។ LifeMate នឹងរក្សាទុកវាទៅក្នុងប្រវត្តិរូបរបស់អ្នកដោយស្វ័យប្រវត្តិ។",
-  "@timeZoneBody": { "placeholders": { "zone": { "type": "String" } } },
-
+  "@timeZoneBody": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
   "profileTitle": "កែប្រែប្រវត្តិរូប",
   "profileName": "ឈ្មោះបង្ហាញ",
   "profileEmail": "អ៊ីមែល",
   "profileEmailNote": "អ៊ីមែលរបស់អ្នកប្រើសម្រាប់ចូលគណនី ហើយមិនអាចប្តូរក្នុងកម្មវិធីបានទេ។",
   "profileSaved": "បានធ្វើបច្ចុប្បន្នភាពប្រវត្តិរូប។",
-
   "changePasswordTitle": "ប្តូរពាក្យសម្ងាត់",
   "currentPassword": "ពាក្យសម្ងាត់បច្ចុប្បន្ន",
   "newPassword": "ពាក្យសម្ងាត់ថ្មី",
@@ -199,7 +235,6 @@
   "passwordChanged": "បានប្តូរពាក្យសម្ងាត់។",
   "newPasswordSame": "ពាក្យសម្ងាត់ថ្មីត្រូវខុសពីពាក្យសម្ងាត់បច្ចុប្បន្ន។",
   "changePasswordInfo": "ដើម្បីសុវត្ថិភាព សូមបញ្ចូលពាក្យសម្ងាត់បច្ចុប្បន្នជាមុនសិន។",
-
   "notificationsTitle": "ការជូនដំណឹង",
   "notificationsPermissionOn": "បានអនុញ្ញាតការជូនដំណឹង",
   "notificationsPermissionOff": "មិនទាន់អនុញ្ញាតការជូនដំណឹងទេ",
@@ -220,7 +255,6 @@
   "notifySavings": "គោលដៅសន្សំ",
   "notifySavingsDesc": "ការរំលឹកប្រចាំខែ \"ដល់ពេលសន្សំហើយ\"",
   "notificationsInAppNote": "ការបិទប្រភេទណាមួយ គ្រាន់តែបញ្ឈប់ការជូនដំណឹងលេចឡើងប៉ុណ្ណោះ។ អ្នកនៅតែឃើញអ្វីៗទាំងអស់នៅក្នុងកម្មវិធី។",
-
   "privacyTitle": "ព័ត៌មានឯកជនភាព",
   "privacyWhatTitle": "អ្វីដែល LifeMate រក្សាទុក",
   "privacyWhatBody": "ឈ្មោះ និងអ៊ីមែលរបស់អ្នក ចំណូលចិត្ត និងទិន្នន័យដែលអ្នកបញ្ចូល៖ ប្រតិបត្តិការ ប្រភេទ ដែនកំណត់ ថវិកា គោលដៅសន្សំ កិច្ចការ ព្រឹត្តិការណ៍ ការរំលឹក និងបញ្ជីទិញឥវ៉ាន់។ LifeMate មិនដែលរក្សាទុកពាក្យសម្ងាត់របស់អ្នកទេ — Firebase Authentication គ្រប់គ្រងវាដោយសុវត្ថិភាព។",
@@ -234,7 +268,6 @@
   "privacyExportBody": "អ្នកអាចនាំចេញប្រតិបត្តិការជាឯកសារ CSV ពី ហិរញ្ញវត្ថុ → របាយការណ៍ បានគ្រប់ពេល។",
   "privacyDeleteTitle": "ការលុបទិន្នន័យ",
   "privacyDeleteBody": "ការកំណត់ → លុបគណនី នឹងលុបគណនី និងអ្វីៗទាំងអស់ដែលអ្នកបានរក្សាទុកជាអចិន្ត្រៃយ៍។ មិនអាចត្រឡប់វិញបានទេ។",
-
   "deleteTitle": "លុបគណនី",
   "deleteWarning": "សកម្មភាពនេះនឹងលុបគណនី LifeMate និងទិន្នន័យទាំងអស់របស់អ្នកជាអចិន្ត្រៃយ៍។ មិនអាចត្រឡប់វិញបានទេ។",
   "deleteWhatIsDeleted": "នឹងលុប៖ ប្រតិបត្តិការ ប្រភេទ ដែនកំណត់ចំណាយ ថវិកា គោលដៅសន្សំ និងប្រវត្តិ កិច្ចការ ព្រឹត្តិការណ៍ប្រតិទិន ការរំលឹក បញ្ជីទិញឥវ៉ាន់ និងប្រវត្តិរូបរបស់អ្នក។",
@@ -244,5 +277,31 @@
   "deleteConfirmTitle": "លុបអ្វីៗទាំងអស់?",
   "deleteConfirmBody": "គណនី និងទិន្នន័យទាំងអស់របស់អ្នកនឹងត្រូវលុបជាអចិន្ត្រៃយ៍។",
   "deleteInProgress": "កំពុងលុបទិន្នន័យរបស់អ្នក…",
-  "deleteDone": "គណនីរបស់អ្នកត្រូវបានលុប។"
+  "deleteDone": "គណនីរបស់អ្នកត្រូវបានលុប។",
+  "appTagline": "រៀបចំថ្ងៃនេះ · រស់នៅបានល្អ",
+  "authContinueWithGoogle": "បន្តជាមួយ Google",
+  "authOr": "ឬ",
+  "authSignUp": "ចុះឈ្មោះ",
+  "authGoogleFailed": "ការចូលជាមួយ Google បរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
+  "authGoogleNotConfigured": "ការចូលជាមួយ Google មិនទាន់បានរៀបចំសម្រាប់កម្មវិធីនេះនៅឡើយទេ។ សូមប្រើអ៊ីមែល និងពាក្យសម្ងាត់សិន។",
+  "authAccountExistsDifferentCredential": "អ៊ីមែលនេះបានចុះឈ្មោះរួចហើយ ដោយប្រើវិធីចូលផ្សេង។ សូមចូលដោយប្រើអ៊ីមែល និងពាក្យសម្ងាត់។",
+  "settingsPasswordGoogle": "អ្នកចូលជាមួយ Google — ពាក្យសម្ងាត់របស់អ្នកត្រូវបានគ្រប់គ្រងនៅក្នុងគណនី Google។",
+  "deleteGoogleHint": "អ្នកបានចូលជាមួយ Google។ ដើម្បីបញ្ជាក់ សូមជ្រើសរើសគណនី Google របស់អ្នកម្តងទៀត។",
+  "deleteConfirmWithGoogle": "បញ្ជាក់ជាមួយ Google ហើយលុប",
+  "homeBalanceThisMonth": "សមតុល្យខែនេះ",
+  "homeSpendingThisMonth": "ចំណាយខែនេះ",
+  "homeHideAmounts": "លាក់ចំនួនទឹកប្រាក់",
+  "homeShowAmounts": "បង្ហាញចំនួនទឹកប្រាក់",
+  "homeNoMonthlyTarget": "កំណត់ដែនកំណត់ប្រចាំខែ ដើម្បីតាមដាន",
+  "quickAddIncome": "បញ្ចូលចំណូល",
+  "quickAddExpense": "បញ្ចូលចំណាយ",
+  "quickAddTask": "បន្ថែមកិច្ចការ",
+  "quickShoppingList": "ទិញឥវ៉ាន់",
+  "successTransactionTitle": "បានបញ្ចូលប្រតិបត្តិការ!",
+  "successTransactionBody": "ប្រតិបត្តិការរបស់អ្នកត្រូវបានកត់ត្រាដោយជោគជ័យ។",
+  "successViewTransactions": "មើលប្រតិបត្តិការ",
+  "successAddAnother": "បញ្ចូលមួយទៀត",
+  "successDone": "រួចរាល់",
+  "settingsExportData": "នាំចេញទិន្នន័យ",
+  "settingsExportDataDesc": "ធ្វើសមកាលកម្មទៅពពកដោយស្វ័យប្រវត្តិ · នាំចេញជា CSV"
 }

@@ -702,3 +702,91 @@ Manual checklist:
 > **Next steps (post-MVP):** translate the remaining feature screens, a
 > scheduled Cloud Function + FCM for server-side reminders (Blaze plan),
 > dark theme (the theme is already token-based), and Crashlytics.
+
+
+---
+---
+
+# LifeMate — Google Sign-In + Wireframe Redesign
+
+> **Status:** implemented (2026-10-23) · `flutter analyze` clean · **125 tests pass**
+> Decisions: background stays **white**, all wireframe screens restyled,
+> **5 tabs** kept with a new floating navigation bar.
+
+## Google Sign-In
+
+- Package: `google_sign_in` 7.x → Firebase `GoogleAuthProvider` credential.
+- "Continue with Google" on **Login** and **Register**. The first Google
+  sign-in creates the Firestore profile (name + email from Google, current
+  app language). Closing the account picker is not shown as an error.
+- Logout also signs out of Google (the account picker appears next time).
+- Google-only accounts: **Change password** is replaced by an explanation;
+  **Delete account** confirms by choosing the Google account again
+  (no password field).
+- Android reads Google's web client ID from `google-services.json`
+  through the **google-services Gradle plugin** (added to
+  `android/settings.gradle.kts` and `android/app/build.gradle.kts`).
+  Optional override: `--dart-define=GOOGLE_SERVER_CLIENT_ID=...`.
+
+### ⚠️ What YOU must do before Google sign-in works
+
+Your current `android/app/google-services.json` has **no OAuth client**, so
+the button shows "Google sign-in is not set up for this app yet" until you:
+
+1. Firebase Console → **Authentication → Sign-in method → Google → Enable**
+   (choose a support email) → Save.
+2. Firebase Console → **Project settings → Your apps → Android
+   (com.lifemate.app) → Add fingerprint**, add your debug SHA-1:
+   `D1:3D:51:CB:43:F5:17:09:BB:5A:80:9D:3D:28:5C:6A:C6:79:61:F9`
+   and SHA-256:
+   `3A:C7:14:95:49:B9:B4:CE:AB:5B:FB:49:5E:4F:24:38:82:8C:1E:39:05:C6:A7:20:1A:69:C6:6A:7C:60:78:91`
+   (from `%USERPROFILE%\.android\debug.keystore`). For release builds add the
+   SHA-1/256 of your upload key **and** of Google Play's app-signing key.
+3. **Download the new `google-services.json`** and replace
+   `android/app/google-services.json` (it now contains `oauth_client`).
+4. `flutter clean` → `flutter run`.
+5. iOS (Mac): download the new `GoogleService-Info.plist`, run
+   `flutterfire configure`, and add the `REVERSED_CLIENT_ID` from that plist
+   as a URL scheme in `ios/Runner/Info.plist` (CFBundleURLTypes), plus
+   `GIDClientID` = `CLIENT_ID`.
+
+Accounts: if an email already has a password account, Firebase's default
+"one account per email" setting links Google to it when the email is
+verified by Google; otherwise the user sees a clear message.
+
+## UI redesign (matches the wireframe)
+
+| Screen | What changed |
+|--------|--------------|
+| Design system | White fields with labels above, 14 px radius, taller buttons; new shared widgets: `PillTabs`, `DonutChart`, `RoundAction`, `HoneyButton`, `RoundCheck`, `PageDots`, `WaveBackground` |
+| Logo | Code-drawn leaf mark (two teal leaves + honey leaf) + "LifeMate" wordmark + tagline "Plan Today · Live Better" |
+| Illustrations | `FinanceArt`, `PlannerArt`, `SavingsArt`, `EmptyListArt`, `SuccessArt` — drawn from shapes/icons (no image files). Replace with professional artwork later without touching screens. |
+| Navigation | Floating rounded bar; the active tab becomes a teal pill with its label (5 tabs kept) |
+| Splash | Logo + tagline, teal wave hills, pulsing dots |
+| Onboarding | Illustration, two-line title, page dots, full-width Next |
+| Login / Register | Logo, icon fields, "Forgot password?", Log In, **or**, Continue with Google, Sign Up link |
+| Home | Header (logo, bell, avatar), teal **balance card** with eye (hide amounts, remembered), income/expenses, **Spending this month** vs monthly limit, round quick actions, today, daily limit, recent, week ahead, budgets, savings |
+| Add Expense | Expense/Income pill tabs, Amount, **Category picker sheet** (grid), Date + time, Description, honey **Save** |
+| Success | New "Transaction Added!" screen → View Transactions / Add Another |
+| Transactions | All / Income / Expenses pills, red/green amounts, round + button, illustrated empty state with "Add Transaction" |
+| Spending limits | Daily / Monthly pills, % on cards, warning banner, **Enable alerts** switch |
+| Budgets | Large budget card with total, spent %, category rows with honey bars; "Create Budget" button |
+| Savings | Featured goal with piggy bank, % bar, target date; other goals as rows; "Create Goal" button |
+| Tasks | "Today's Tasks" + date, pill tabs, round check circles, "Add Task" |
+| Calendar | Circular selected day, time + accent-bar agenda rows |
+| Shopping list | Round check circles, "Add Item" row |
+| Reports | Monthly / Yearly / Custom pills, **donut chart** with total and legend (%), "Export Report" button |
+| Settings | Export data row, Google-aware password row |
+| Notifications | Icon tiles beside each switch |
+
+**Intentionally different from the wireframe:**
+- White background (your choice) instead of cream.
+- 5 tabs instead of 4 (your choice), with a modern floating bar.
+- "Transfer" quick action → LifeMate has no accounts to transfer between, so
+  the quick actions are Add Income, Add Expense, Add Task, Shopping.
+- "Email or Phone" → email only (phone sign-in is not implemented).
+- "Save List" button on shopping lists → not needed: every change saves
+  instantly.
+- "Data Backup" → "Export data": everything already syncs to the cloud.
+- Dark mode (wireframe #18, optional) → not implemented yet; the theme uses
+  color tokens so it can be added later.

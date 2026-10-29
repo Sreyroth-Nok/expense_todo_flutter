@@ -41,12 +41,14 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
       final alerts =
           widget.isEditing ? await service.update(tx) : await service.add(tx);
       if (!mounted) return;
-      AppSnackBar.success(
-        context,
-        widget.isEditing ? 'Transaction updated.' : 'Transaction saved.',
-      );
       showLimitAlerts(context, alerts);
-      context.pop();
+      if (widget.isEditing) {
+        AppSnackBar.success(context, 'Transaction updated.');
+        context.pop();
+      } else {
+        // New transaction → the "Transaction Added!" confirmation screen.
+        context.pushReplacement(AppRoutes.transactionSuccessOf(tx.type.name));
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);

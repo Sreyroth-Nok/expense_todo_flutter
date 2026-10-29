@@ -11,8 +11,7 @@ import 'category_visuals.dart';
 
 /// One row in a transaction list.
 ///
-/// Income is shown in green with "+". Expenses use the normal text color
-/// with "-" — red is reserved for overspending and errors.
+/// Income is shown in green with "+", expenses in red with "-".
 class TransactionTile extends StatelessWidget {
   const TransactionTile({
     super.key,
@@ -74,7 +73,7 @@ class TransactionTile extends StatelessWidget {
             Text(
               Money.format(tx.signedAmountMinor, tx.currency, signed: true),
               style: AppTextStyles.titleMedium.copyWith(
-                color: tx.isIncome ? AppColors.success : AppColors.textPrimary,
+                color: tx.isIncome ? AppColors.success : AppColors.error,
               ),
             ),
           ],

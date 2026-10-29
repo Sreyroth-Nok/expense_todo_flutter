@@ -4,9 +4,9 @@ import 'package:gap/gap.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/money.dart';
-import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/form_fields.dart';
+import '../../../../shared/widgets/ui_kit.dart';
 import '../../domain/finance_transaction.dart';
 import '../../domain/transaction_category.dart';
 import 'category_visuals.dart';
@@ -75,11 +75,31 @@ class _TransactionFormState extends State<TransactionForm> {
   List<TransactionCategory> get _categoriesForType =>
       widget.categories.where((c) => c.type == _type).toList();
 
+  TransactionCategory? get _selectedCategory =>
+      _categoriesForType.where((c) => c.id == _categoryId).firstOrNull;
+
+  Future<void> _pickCategory() async {
+    final picked = await showModalBottomSheet<TransactionCategory>(
+      context: context,
+      backgroundColor: AppColors.background,
+      isScrollControlled: true,
+      builder: (_) => CategoryPickerSheet(
+        categories: _categoriesForType,
+        selectedId: _categoryId,
+        onManage: widget.onManageCategories,
+      ),
+    );
+    if (picked != null) {
+      setState(() {
+        _categoryId = picked.id;
+        _categoryError = false;
+      });
+    }
+  }
+
   void _submit() {
     final formValid = _formKey.currentState?.validate() ?? false;
-    final category = _categoriesForType
-        .where((c) => c.id == _categoryId)
-        .firstOrNull;
+    final category = _selectedCategory;
     setState(() => _categoryError = category == null);
     if (!formValid || category == null) return;
 
@@ -105,125 +125,78 @@ class _TransactionFormState extends State<TransactionForm> {
 
   @override
   Widget build(BuildContext context) {
-    final categories = _categoriesForType;
+    final selected = _selectedCategory;
 
     return Form(
       key: _formKey,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
         children: [
-          // ── Type ───────────────────────────────────────────────
-          SegmentedButton<TransactionType>(
-            segments: const [
-              ButtonSegment(
-                value: TransactionType.expense,
-                label: Text('Expense'),
-                icon: Icon(Icons.arrow_upward_rounded),
-              ),
-              ButtonSegment(
-                value: TransactionType.income,
-                label: Text('Income'),
-                icon: Icon(Icons.arrow_downward_rounded),
-              ),
-            ],
-            selected: {_type},
-            showSelectedIcon: false,
-            style: SegmentedButton.styleFrom(
-              selectedBackgroundColor: AppColors.primary,
-              selectedForegroundColor: Colors.white,
-            ),
-            onSelectionChanged: (s) => setState(() {
-              _type = s.first;
+          PillTabs<TransactionType>(
+            options: const [TransactionType.expense, TransactionType.income],
+            selected: _type,
+            labelOf: (t) => t.label,
+            onSelected: (t) => setState(() {
+              _type = t;
               // A category belongs to one type; clear it if it no longer fits.
-              if (!_categoriesForType.any((c) => c.id == _categoryId)) {
-                _categoryId = null;
-              }
+              if (_selectedCategory == null) _categoryId = null;
             }),
           ),
-          const Gap(20),
+          const Gap(22),
 
-          // ── Amount + currency ──────────────────────────────────
           AmountCurrencyField(
             fieldKey: const Key('amountField'),
             controller: _amount,
             currency: _currency,
             onCurrencyChanged: (c) => setState(() => _currency = c),
           ),
-          const Gap(20),
+          const Gap(18),
 
-          // ── Category ───────────────────────────────────────────
-          Row(
-            children: [
-              Expanded(
-                child: Text('Category', style: AppTextStyles.titleMedium),
+          // ── Category select row ────────────────────────────────
+          const FieldLabel('Category'),
+          InkWell(
+            key: const Key('categoryField'),
+            onTap: _pickCategory,
+            borderRadius: BorderRadius.circular(14),
+            child: InputDecorator(
+              decoration: InputDecoration(
+                errorText: _categoryError ? 'Please choose a category.' : null,
+                suffixIcon: const Icon(Icons.chevron_right_rounded),
               ),
-              if (widget.onManageCategories != null)
-                TextButton(
-                  onPressed: widget.onManageCategories,
-                  child: const Text('Manage'),
-                ),
-            ],
+              child: selected == null
+                  ? Text('Select category',
+                      style: AppTextStyles.bodyMedium
+                          .copyWith(color: AppColors.textSecondary))
+                  : Row(
+                      children: [
+                        CategoryIconBadge(
+                          iconKey: selected.iconKey,
+                          colorValue: selected.colorValue,
+                          size: 26,
+                        ),
+                        const Gap(10),
+                        Expanded(
+                          child: Text(selected.name,
+                              style: AppTextStyles.bodyMedium,
+                              overflow: TextOverflow.ellipsis),
+                        ),
+                      ],
+                    ),
+            ),
           ),
-          const Gap(4),
-          if (categories.isEmpty)
-            Text(
-              'No ${_type.label.toLowerCase()} categories yet. Tap "Manage" to add one.',
-              style: AppTextStyles.bodySmall,
-            )
-          else
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final c in categories)
-                  ChoiceChip(
-                    avatar: Icon(
-                      CategoryIcons.of(c.iconKey),
-                      size: 18,
-                      color: _categoryId == c.id
-                          ? Colors.white
-                          : Color(c.colorValue),
-                    ),
-                    label: Text(c.name),
-                    selected: _categoryId == c.id,
-                    showCheckmark: false,
-                    selectedColor: AppColors.primary,
-                    backgroundColor: AppColors.background,
-                    side: const BorderSide(color: AppColors.border),
-                    labelStyle: AppTextStyles.labelLarge.copyWith(
-                      color: _categoryId == c.id
-                          ? Colors.white
-                          : AppColors.textPrimary,
-                    ),
-                    onSelected: (_) => setState(() {
-                      _categoryId = c.id;
-                      _categoryError = false;
-                    }),
-                  ),
-              ],
-            ),
-          if (_categoryError) ...[
-            const Gap(6),
-            Text(
-              'Please choose a category.',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
-            ),
-          ],
-          const Gap(20),
+          const Gap(18),
 
-          // ── Date + time ────────────────────────────────────────
           DateTimeFields(
             value: _date,
             onChanged: (d) => setState(() => _date = d),
           ),
-          const Gap(20),
+          const Gap(18),
 
-          // ── Description ────────────────────────────────────────
           AppTextField(
             label: 'Description (optional)',
-            hint: 'e.g. Lunch with friends',
+            hint: 'Enter description…',
             controller: _description,
-            maxLines: 2,
+            maxLines: 3,
             textCapitalization: TextCapitalization.sentences,
             validator: (v) => (v?.trim().length ?? 0) > 200
                 ? 'Description must be 200 characters or fewer.'
@@ -231,13 +204,116 @@ class _TransactionFormState extends State<TransactionForm> {
           ),
           const Gap(28),
 
-          AppPrimaryButton(
-            label: widget.initial == null ? 'Save transaction' : 'Save changes',
+          HoneyButton(
+            label: widget.initial == null ? 'Save' : 'Save changes',
             icon: Icons.check_rounded,
             isLoading: widget.isSaving,
             onPressed: _submit,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Bottom sheet with a grid of categories to choose from.
+class CategoryPickerSheet extends StatelessWidget {
+  const CategoryPickerSheet({
+    super.key,
+    required this.categories,
+    this.selectedId,
+    this.onManage,
+  });
+
+  final List<TransactionCategory> categories;
+  final String? selectedId;
+  final VoidCallback? onManage;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text('Select category',
+                      style: AppTextStyles.headlineSmall),
+                ),
+                if (onManage != null)
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      onManage!();
+                    },
+                    child: const Text('Manage'),
+                  ),
+              ],
+            ),
+            const Gap(12),
+            if (categories.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  'No categories of this type yet. Tap "Manage" to add one.',
+                  style: AppTextStyles.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
+              )
+            else
+              Flexible(
+                child: GridView.count(
+                  shrinkWrap: true,
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                  childAspectRatio: 0.82,
+                  children: [
+                    for (final c in categories)
+                      InkWell(
+                        borderRadius: BorderRadius.circular(14),
+                        onTap: () => Navigator.of(context).pop(c),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: c.id == selectedId
+                                  ? AppColors.primary
+                                  : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CategoryIconBadge(
+                                iconKey: c.iconKey,
+                                colorValue: c.colorValue,
+                                size: 44,
+                              ),
+                              const Gap(6),
+                              Text(
+                                c.name,
+                                style: AppTextStyles.labelMedium
+                                    .copyWith(color: AppColors.textPrimary),
+                                maxLines: 2,
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

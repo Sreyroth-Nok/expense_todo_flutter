@@ -8,7 +8,9 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/clock_provider.dart';
 import '../../../shared/widgets/app_states.dart';
+import '../../../core/utils/date_utils.dart';
 import '../../../shared/widgets/form_fields.dart';
+import '../../../shared/widgets/ui_kit.dart';
 import '../domain/planner_task.dart';
 import '../domain/task_providers.dart';
 import 'widgets/task_tile.dart';
@@ -71,7 +73,12 @@ class _TasksTabState extends ConsumerState<TasksTab> {
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
             children: [
-              AppChoiceChips<_TaskView>(
+              if (_view == _TaskView.today) ...[
+                Text("Today's Tasks", style: AppTextStyles.headlineSmall),
+                Text(AppDateUtils.formatDay(now), style: AppTextStyles.bodySmall),
+                const Gap(12),
+              ],
+              PillTabs<_TaskView>(
                 options: _TaskView.values,
                 selected: _view,
                 labelOf: (v) => switch (v) {
@@ -139,6 +146,15 @@ class _TasksTabState extends ConsumerState<TasksTab> {
                     ),
                   for (final t in list) TaskTile(task: t),
                 ],
+              const Gap(4),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => context.push(AppRoutes.newTask),
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text('Add Task'),
+                ),
+              ),
             ],
           );
         },

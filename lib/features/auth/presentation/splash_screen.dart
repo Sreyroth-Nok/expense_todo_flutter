@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/app_logo.dart';
+import '../../../shared/widgets/ui_kit.dart';
 import '../data/auth_repository.dart';
 
 /// Splash screen — shown while the app determines the auth state.
@@ -45,36 +47,66 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final onboardingComplete = prefs.getBool('onboarding_complete') ?? false;
 
     if (!mounted) return;
-    if (onboardingComplete) {
-      context.go(AppRoutes.login);
-    } else {
-      context.go(AppRoutes.onboarding);
-    }
+    context.go(onboardingComplete ? AppRoutes.login : AppRoutes.onboarding);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const AppLogo(size: 72, animate: true),
-            const SizedBox(height: 48),
-            const SizedBox(
-              width: 28,
-              height: 28,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.5,
-                color: AppColors.primary,
-              ),
+      body: Stack(
+        children: [
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: WaveBackground(height: 240),
+          ),
+          Align(
+            alignment: const Alignment(0, -0.2),
+            child: AppLogo(
+              size: 84,
+              tagline: context.l10n.appTagline,
+              animate: true,
             ),
-          ]
-              .animate(interval: 200.ms)
-              .fadeIn(duration: 500.ms),
-        ),
+          ),
+          Align(
+            alignment: const Alignment(0, 0.92),
+            child: const _LoadingDots()
+                .animate()
+                .fadeIn(delay: 400.ms, duration: 400.ms),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+/// Three pulsing dots (honey / white) on the wave.
+class _LoadingDots extends StatelessWidget {
+  const _LoadingDots();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < 3; i++)
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: i == 0 ? AppColors.honey : Colors.white,
+              shape: BoxShape.circle,
+            ),
+          )
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .scale(
+                delay: (i * 180).ms,
+                duration: 500.ms,
+                begin: const Offset(0.7, 0.7),
+                end: const Offset(1.15, 1.15),
+              ),
+      ],
     );
   }
 }

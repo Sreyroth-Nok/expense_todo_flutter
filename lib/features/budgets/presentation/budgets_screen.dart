@@ -7,12 +7,15 @@ import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/clock_provider.dart';
+import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/app_states.dart';
 import '../domain/budget.dart';
 import '../domain/budget_providers.dart';
+import 'widgets/budget_hero_card.dart';
 import 'widgets/budget_progress_card.dart';
 
-/// Budgets grouped into Active, Upcoming and Past.
+/// Budgets: the current budget in a large card with its categories, then
+/// other active, upcoming and past budgets.
 class BudgetsScreen extends ConsumerWidget {
   const BudgetsScreen({super.key});
 
@@ -24,26 +27,31 @@ class BudgetsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('Budgets')),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.newBudget),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('New budget'),
-      ),
+      bottomNavigationBar: budgetsAsync.value?.isNotEmpty ?? false
+          ? SafeArea(
+              minimum: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+              child: AppPrimaryButton(
+                label: 'Create Budget',
+                icon: Icons.add_rounded,
+                onPressed: () => context.push(AppRoutes.newBudget),
+              ),
+            )
+          : null,
       body: budgetsAsync.when(
         loading: () => const LoadingState(),
         error: (e, _) => Center(child: ErrorState(error: e)),
         data: (budgets) {
           if (budgets.isEmpty) {
             return Center(
-              child: EmptyState(
-                icon: Icons.pie_chart_outline_rounded,
-                title: 'No budgets yet',
-                message: 'Plan how much to spend in a period, and split it '
-                    'across categories like food or transport.',
-                actionLabel: 'Create a budget',
-                onAction: () => context.push(AppRoutes.newBudget),
+              child: SingleChildScrollView(
+                child: EmptyState(
+                  icon: Icons.pie_chart_rounded,
+                  title: 'No budgets yet',
+                  message: 'Plan how much to spend in a period, and split it '
+                      'across categories like food or transport.',
+                  actionLabel: 'Create Budget',
+                  onAction: () => context.push(AppRoutes.newBudget),
+                ),
               ),
             );
           }
@@ -52,10 +60,18 @@ class BudgetsScreen extends ConsumerWidget {
           final past = budgets.where((b) => b.isPastAt(now)).toList();
 
           return ListView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 96),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
             children: [
+              if (active.isNotEmpty) ...[
+                BudgetHeroCard(
+                  budget: active.first,
+                  onTap: () =>
+                      context.push(AppRoutes.budgetDetail(active.first.id)),
+                ),
+                const Gap(12),
+              ],
               for (final (title, list) in [
-                ('Active', active),
+                ('Also active', active.skip(1).toList()),
                 ('Upcoming', upcoming),
                 ('Past', past),
               ])

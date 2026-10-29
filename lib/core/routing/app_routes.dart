@@ -23,6 +23,9 @@ abstract final class AppRoutes {
   // ── Full-screen routes (shown above the bottom bar) ─────────────
   static const String categories = '/categories';
   static const String newTransaction = '/transaction/new';
+  static const String transactionSuccess = '/transaction/success';
+  static String transactionSuccessOf(String type) =>
+      '$transactionSuccess?type=$type';
   static const String transactionDetailPattern = '/transaction/:id';
   static const String editTransactionPattern = '/transaction/:id/edit';
   static const String editLimitPattern = '/limits/:period/edit';

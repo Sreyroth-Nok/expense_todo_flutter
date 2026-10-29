@@ -13,7 +13,9 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/app_snack_bar.dart';
 import '../../../shared/widgets/app_states.dart';
 import '../../../shared/widgets/date_range_filter.dart';
+import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/progress_bar.dart';
+import '../../../shared/widgets/ui_kit.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../budgets/domain/budget_providers.dart';
 import '../../budgets/presentation/widgets/budget_progress_card.dart';
@@ -42,10 +44,28 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
 
   DateRange get _range => _selection.range!;
 
-  Future<void> _chooseRange() async {
-    final s = await pickDateRange(context,
-        current: _selection.preset, allowAllTime: false);
-    if (s != null && s.range != null) setState(() => _selection = s);
+  Future<void> _choosePreset(RangePreset preset) async {
+    if (preset != RangePreset.custom) {
+      setState(() =>
+          _selection = RangeSelection(preset, preset.rangeAt(DateTime.now())));
+      return;
+    }
+    final now = DateTime.now();
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(now.year + 1, 12, 31),
+      initialDateRange: DateTimeRange(
+        start: _range.start,
+        end: _range.end.subtract(const Duration(days: 1)),
+      ),
+    );
+    if (picked == null) return;
+    setState(() => _selection = RangeSelection(
+          RangePreset.custom,
+          DateRange(AppDateUtils.dayOf(picked.start).start,
+              AppDateUtils.dayOf(picked.end).end),
+        ));
   }
 
   Future<void> _export(FinanceReport report) async {
@@ -75,36 +95,45 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Reports'),
-        actions: [
-          IconButton(
-            tooltip: 'Export CSV',
-            icon: _exporting
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.ios_share_rounded),
-            onPressed: _exporting || report.value == null
-                ? null
-                : () => _export(report.value!),
-          ),
-        ],
+      appBar: AppBar(title: const Text('Financial Report')),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+        child: AppPrimaryButton(
+          label: 'Export Report (CSV)',
+          icon: Icons.ios_share_rounded,
+          isLoading: _exporting,
+          onPressed: report.value == null || report.value!.isEmpty
+              ? null
+              : () => _export(report.value!),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ActionChip(
-              avatar: const Icon(Icons.date_range_rounded,
-                  size: 18, color: AppColors.primary),
-              label: Text(_selection.label),
-              onPressed: _chooseRange,
-              backgroundColor: AppColors.softTeal,
-              side: BorderSide.none,
-            ),
+          PillTabs<RangePreset>(
+            options: const [
+              RangePreset.thisMonth,
+              RangePreset.thisYear,
+              RangePreset.custom,
+            ],
+            selected: _selection.preset,
+            labelOf: (p) => switch (p) {
+              RangePreset.thisMonth => 'Monthly',
+              RangePreset.thisYear => 'Yearly',
+              _ => 'Custom',
+            },
+            onSelected: _choosePreset,
+          ),
+          const Gap(12),
+          Row(
+            children: [
+              Text(
+                '${AppDateUtils.formatShortDay(_range.start)} – '
+                '${AppDateUtils.formatShortDay(_range.end.subtract(const Duration(days: 1)))} '
+                '${_range.start.year}',
+                style: AppTextStyles.titleMedium,
+              ),
+            ],
           ),
           const Gap(12),
           report.when(
@@ -186,39 +215,14 @@ class _ReportBody extends ConsumerWidget {
         const SectionTitle(title: 'Spending by category'),
         for (final entry in report.expensesByCategory.entries) ...[
           AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (report.expensesByCategory.length > 1)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: AppBadge(label: entry.key, color: AppColors.primary),
-                  ),
-                for (final c in entry.value) ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${byId[c.categoryId]?.name ?? c.categoryName} · ${c.count}',
-                          style: AppTextStyles.bodyMedium,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(Money.format(c.amountMinor, entry.key),
-                          style: AppTextStyles.labelLarge),
-                    ],
-                  ),
-                  const Gap(6),
-                  ProgressBar(
-                    value: c.amountMinor / entry.value.first.amountMinor,
-                    color: byId[c.categoryId] == null
-                        ? AppColors.primary
-                        : Color(byId[c.categoryId]!.colorValue),
-                    height: 6,
-                  ),
-                  const Gap(12),
-                ],
-              ],
+            child: _CategoryDonut(
+              currency: entry.key,
+              totals: entry.value,
+              colorOf: (id) => byId[id] == null
+                  ? null
+                  : Color(byId[id]!.colorValue),
+              nameOf: (c) => byId[c.categoryId]?.name ?? c.categoryName,
+              showCurrency: report.expensesByCategory.length > 1,
             ),
           ),
           const Gap(12),
@@ -308,6 +312,111 @@ class _ReportBody extends ConsumerWidget {
 
   static int _maxOf(List<PeriodTotal> list) =>
       list.fold(0, (m, p) => p.amountMinor > m ? p.amountMinor : m);
+}
+
+/// Donut chart of expenses by category with a legend (largest first).
+/// Categories after the 5th are grouped as "Others".
+class _CategoryDonut extends StatelessWidget {
+  const _CategoryDonut({
+    required this.currency,
+    required this.totals,
+    required this.colorOf,
+    required this.nameOf,
+    required this.showCurrency,
+  });
+
+  final String currency;
+  final List<CategoryTotal> totals;
+  final Color? Function(String categoryId) colorOf;
+  final String Function(CategoryTotal) nameOf;
+  final bool showCurrency;
+
+  static const _fallback = [
+    AppColors.primary,
+    AppColors.honey,
+    Color(0xFFDB2777),
+    Color(0xFF2563EB),
+    Color(0xFF7C3AED),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final total = totals.fold(0, (s, c) => s + c.amountMinor);
+    final top = totals.take(5).toList();
+    final othersAmount =
+        totals.skip(5).fold(0, (s, c) => s + c.amountMinor);
+
+    final rows = <(String, int, Color)>[
+      for (var i = 0; i < top.length; i++)
+        (
+          nameOf(top[i]),
+          top[i].amountMinor,
+          colorOf(top[i].categoryId) ?? _fallback[i % _fallback.length],
+        ),
+      if (othersAmount > 0) ('Others', othersAmount, AppColors.textSecondary),
+    ];
+
+    return Column(
+      children: [
+        if (showCurrency)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: AppBadge(label: currency, color: AppColors.primary),
+          ),
+        const Gap(8),
+        DonutChart(
+          size: 190,
+          thickness: 28,
+          slices: [
+            for (final r in rows) DonutSlice(r.$2.toDouble(), r.$3),
+          ],
+          center: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Total Expenses',
+                  style: AppTextStyles.labelSmall, textAlign: TextAlign.center),
+              const Gap(2),
+              FittedBox(
+                child: Text(Money.format(total, currency),
+                    style: AppTextStyles.headlineSmall),
+              ),
+            ],
+          ),
+        ),
+        const Gap(18),
+        for (final (name, amount, color) in rows)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Row(
+              children: [
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                ),
+                const Gap(10),
+                Expanded(
+                  child: Text(name,
+                      style: AppTextStyles.bodyMedium,
+                      overflow: TextOverflow.ellipsis),
+                ),
+                SizedBox(
+                  width: 44,
+                  child: Text(
+                    total == 0 ? '0%' : '${(amount * 100 / total).round()}%',
+                    style: AppTextStyles.bodySmall,
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+                const Gap(12),
+                Text(Money.format(amount, currency),
+                    style: AppTextStyles.labelLarge),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
 }
 
 class _Stat extends StatelessWidget {

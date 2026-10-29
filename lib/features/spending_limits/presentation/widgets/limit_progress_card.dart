@@ -101,6 +101,11 @@ class LimitProgressCard extends StatelessWidget {
                   style: AppTextStyles.bodySmall,
                 ),
               ),
+              const Spacer(),
+              Text(
+                '${(status.progress * 100).round()}%',
+                style: AppTextStyles.titleLarge.copyWith(color: level.color),
+              ),
             ],
           ),
           const Gap(10),

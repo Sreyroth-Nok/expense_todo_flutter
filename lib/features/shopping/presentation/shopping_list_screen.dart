@@ -10,6 +10,7 @@ import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/app_snack_bar.dart';
 import '../../../shared/widgets/app_states.dart';
 import '../../../shared/widgets/app_text_field.dart';
+import '../../../shared/widgets/ui_kit.dart';
 import '../../auth/data/auth_repository.dart';
 import '../data/shopping_repository.dart';
 import '../domain/shopping.dart';
@@ -182,6 +183,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                               onEdit: _editItem,
                               onDelete: (i) => _run((uid) =>
                                   _repo.deleteItem(uid, widget.listId, i.id)),
+                              onAdd: () => _editItem(null),
                             ),
                     ),
                   ),
@@ -198,8 +200,10 @@ class _ItemList extends StatelessWidget {
     required this.onToggle,
     required this.onEdit,
     required this.onDelete,
+    required this.onAdd,
   });
 
+  final VoidCallback onAdd;
   final List<ShoppingItem> items;
   final ValueChanged<ShoppingItem> onToggle;
   final ValueChanged<ShoppingItem> onEdit;
@@ -222,9 +226,9 @@ class _ItemList extends StatelessWidget {
                 color: AppColors.error),
           ),
           child: ListTile(
-            leading: Checkbox(
-              value: item.isPurchased,
-              activeColor: AppColors.primary,
+            leading: RoundCheck(
+              checked: item.isPurchased,
+              semanticLabel: item.name,
               onChanged: (_) => onToggle(item),
             ),
             title: Text(
@@ -246,6 +250,17 @@ class _ItemList extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 32),
       children: [
         for (final i in toBuy) row(i),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Add Item'),
+            ),
+          ),
+        ),
         if (bought.isNotEmpty) ...[
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),

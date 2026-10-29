@@ -27,22 +27,28 @@ class PickerField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          errorText: errorText,
-          enabled: onTap != null,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FieldLabel(label),
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              suffixIcon: Icon(icon, color: AppColors.primary, size: 20),
+              errorText: errorText,
+              enabled: onTap != null,
+            ),
+            child: Text(
+              value,
+              style: AppTextStyles.bodyMedium,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ),
-        child: Text(
-          value,
-          style: AppTextStyles.bodyMedium,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
+      ],
     );
   }
 }
@@ -77,8 +83,9 @@ class DateTimeFields extends StatelessWidget {
       lastDate: DateTime(DateTime.now().year + 10),
     );
     if (picked == null) return;
-    onChanged(DateTime(
-        picked.year, picked.month, picked.day, value.hour, value.minute));
+    onChanged(
+      DateTime(picked.year, picked.month, picked.day, value.hour, value.minute),
+    );
   }
 
   Future<void> _pickTime(BuildContext context) async {
@@ -87,8 +94,9 @@ class DateTimeFields extends StatelessWidget {
       initialTime: TimeOfDay.fromDateTime(value),
     );
     if (picked == null) return;
-    onChanged(DateTime(
-        value.year, value.month, value.day, picked.hour, picked.minute));
+    onChanged(
+      DateTime(value.year, value.month, value.day, picked.hour, picked.minute),
+    );
   }
 
   @override
@@ -160,8 +168,9 @@ class AmountCurrencyField extends StatelessWidget {
             controller: controller,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             textInputAction: TextInputAction.next,
-            validator: (v) =>
-                optional && (v == null || v.trim().isEmpty) ? null : validate(v),
+            validator: (v) => optional && (v == null || v.trim().isEmpty)
+                ? null
+                : validate(v),
             prefixIcon: const Icon(Icons.payments_outlined),
             onChanged: onChanged,
           ),
@@ -169,16 +178,21 @@ class AmountCurrencyField extends StatelessWidget {
         const Gap(12),
         SizedBox(
           width: 110,
-          child: DropdownButtonFormField<String>(
-            initialValue: currency,
-            decoration: const InputDecoration(labelText: 'Currency'),
-            items: [
-              for (final c in Currencies.supported)
-                DropdownMenuItem(value: c.code, child: Text(c.code)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const FieldLabel('Currency'),
+              DropdownButtonFormField<String>(
+                initialValue: currency,
+                items: [
+                  for (final c in Currencies.supported)
+                    DropdownMenuItem(value: c.code, child: Text(c.code)),
+                ],
+                onChanged: (v) {
+                  if (v != null) onCurrencyChanged(v);
+                },
+              ),
             ],
-            onChanged: (v) {
-              if (v != null) onCurrencyChanged(v);
-            },
           ),
         ),
       ],
@@ -216,8 +230,7 @@ class AppChoiceChips<T> extends StatelessWidget {
             backgroundColor: AppColors.background,
             side: const BorderSide(color: AppColors.border),
             labelStyle: AppTextStyles.labelLarge.copyWith(
-              color:
-                  option == selected ? Colors.white : AppColors.textPrimary,
+              color: option == selected ? Colors.white : AppColors.textPrimary,
             ),
             onSelected: (_) => onSelected(option),
           ),

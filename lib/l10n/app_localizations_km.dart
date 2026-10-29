@@ -177,25 +177,25 @@ class AppLocalizationsKm extends AppLocalizations {
   }
 
   @override
-  String get onboardingTitle1 => 'គ្រប់គ្រងប្រាក់របស់អ្នក';
+  String get onboardingTitle1 => 'គ្រប់គ្រង\nហិរញ្ញវត្ថុរបស់អ្នក';
 
   @override
   String get onboardingBody1 =>
-      'តាមដានចំណូល និងចំណាយ កំណត់ដែនកំណត់ចំណាយ និងសម្រេចគោលដៅសន្សំ — ទាំងអស់នៅកន្លែងតែមួយ។';
+      'តាមដានចំណូល ចំណាយ ថវិកា និងសម្រេចគោលដៅរបស់អ្នក — ទាំងអស់នៅកន្លែងតែមួយ។';
 
   @override
-  String get onboardingTitle2 => 'រៀបចំផែនការរាល់ថ្ងៃ';
+  String get onboardingTitle2 => 'គ្រប់គ្រង\nថ្ងៃរបស់អ្នក';
 
   @override
   String get onboardingBody2 =>
-      'រៀបចំកិច្ចការ កំណត់ពេលព្រឹត្តិការណ៍ កំណត់ការរំលឹក ហើយកុំភ្លេចបង់វិក្កយបត្រសំខាន់ៗទៀត។';
+      'គ្រប់គ្រងកិច្ចការ ព្រឹត្តិការណ៍ប្រតិទិន ការរំលឹក និងបញ្ជីទិញឥវ៉ាន់ ដើម្បីជីវិតកាន់តែប្រសើរ។';
 
   @override
-  String get onboardingTitle3 => 'រៀបចំឱ្យមានសណ្តាប់ធ្នាប់';
+  String get onboardingTitle3 => 'ចំណាយឆ្លាតវៃ\nសន្សំបានច្រើន';
 
   @override
   String get onboardingBody3 =>
-      'បង្កើតបញ្ជីទិញឥវ៉ាន់ តាមដានប្រភេទថវិកា និងទទួលបានរបាយការណ៍ច្បាស់លាស់អំពីការចំណាយរបស់អ្នក។';
+      'កំណត់ដែនកំណត់ប្រចាំថ្ងៃ និងប្រចាំខែ ព្រមទាំងគោលដៅសន្សំ ហើយទទួលការព្រមានមុនពេលចំណាយលើស។';
 
   @override
   String get onboardingSkip => 'រំលង';
@@ -213,10 +213,10 @@ class AppLocalizationsKm extends AppLocalizations {
   String get authLogIn => 'ចូល';
 
   @override
-  String get loginTitle => 'សូមស្វាគមន៍ការត្រឡប់មកវិញ';
+  String get loginTitle => 'សូមស្វាគមន៍ការត្រឡប់មកវិញ!';
 
   @override
-  String get loginSubtitle => 'ចូលទៅក្នុងគណនី LifeMate របស់អ្នក។';
+  String get loginSubtitle => 'ចូលគណនីដើម្បីបន្ត';
 
   @override
   String get fieldEmail => 'អាសយដ្ឋានអ៊ីមែល';
@@ -240,7 +240,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get loginFailed => 'ការចូលបរាជ័យ។ សូមព្យាយាមម្តងទៀត។';
 
   @override
-  String get registerTitle => 'បង្កើតគណនី';
+  String get registerTitle => 'បង្កើតគណនីរបស់អ្នក';
 
   @override
   String get registerSubtitle =>
@@ -713,4 +713,89 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get deleteDone => 'គណនីរបស់អ្នកត្រូវបានលុប។';
+
+  @override
+  String get appTagline => 'រៀបចំថ្ងៃនេះ · រស់នៅបានល្អ';
+
+  @override
+  String get authContinueWithGoogle => 'បន្តជាមួយ Google';
+
+  @override
+  String get authOr => 'ឬ';
+
+  @override
+  String get authSignUp => 'ចុះឈ្មោះ';
+
+  @override
+  String get authGoogleFailed =>
+      'ការចូលជាមួយ Google បរាជ័យ។ សូមព្យាយាមម្តងទៀត។';
+
+  @override
+  String get authGoogleNotConfigured =>
+      'ការចូលជាមួយ Google មិនទាន់បានរៀបចំសម្រាប់កម្មវិធីនេះនៅឡើយទេ។ សូមប្រើអ៊ីមែល និងពាក្យសម្ងាត់សិន។';
+
+  @override
+  String get authAccountExistsDifferentCredential =>
+      'អ៊ីមែលនេះបានចុះឈ្មោះរួចហើយ ដោយប្រើវិធីចូលផ្សេង។ សូមចូលដោយប្រើអ៊ីមែល និងពាក្យសម្ងាត់។';
+
+  @override
+  String get settingsPasswordGoogle =>
+      'អ្នកចូលជាមួយ Google — ពាក្យសម្ងាត់របស់អ្នកត្រូវបានគ្រប់គ្រងនៅក្នុងគណនី Google។';
+
+  @override
+  String get deleteGoogleHint =>
+      'អ្នកបានចូលជាមួយ Google។ ដើម្បីបញ្ជាក់ សូមជ្រើសរើសគណនី Google របស់អ្នកម្តងទៀត។';
+
+  @override
+  String get deleteConfirmWithGoogle => 'បញ្ជាក់ជាមួយ Google ហើយលុប';
+
+  @override
+  String get homeBalanceThisMonth => 'សមតុល្យខែនេះ';
+
+  @override
+  String get homeSpendingThisMonth => 'ចំណាយខែនេះ';
+
+  @override
+  String get homeHideAmounts => 'លាក់ចំនួនទឹកប្រាក់';
+
+  @override
+  String get homeShowAmounts => 'បង្ហាញចំនួនទឹកប្រាក់';
+
+  @override
+  String get homeNoMonthlyTarget => 'កំណត់ដែនកំណត់ប្រចាំខែ ដើម្បីតាមដាន';
+
+  @override
+  String get quickAddIncome => 'បញ្ចូលចំណូល';
+
+  @override
+  String get quickAddExpense => 'បញ្ចូលចំណាយ';
+
+  @override
+  String get quickAddTask => 'បន្ថែមកិច្ចការ';
+
+  @override
+  String get quickShoppingList => 'ទិញឥវ៉ាន់';
+
+  @override
+  String get successTransactionTitle => 'បានបញ្ចូលប្រតិបត្តិការ!';
+
+  @override
+  String get successTransactionBody =>
+      'ប្រតិបត្តិការរបស់អ្នកត្រូវបានកត់ត្រាដោយជោគជ័យ។';
+
+  @override
+  String get successViewTransactions => 'មើលប្រតិបត្តិការ';
+
+  @override
+  String get successAddAnother => 'បញ្ចូលមួយទៀត';
+
+  @override
+  String get successDone => 'រួចរាល់';
+
+  @override
+  String get settingsExportData => 'នាំចេញទិន្នន័យ';
+
+  @override
+  String get settingsExportDataDesc =>
+      'ធ្វើសមកាលកម្មទៅពពកដោយស្វ័យប្រវត្តិ · នាំចេញជា CSV';
 }

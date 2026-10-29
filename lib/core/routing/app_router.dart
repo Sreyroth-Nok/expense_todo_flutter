@@ -37,6 +37,7 @@ import '../../features/transactions/domain/finance_transaction.dart';
 import '../../features/transactions/presentation/categories_screen.dart';
 import '../../features/transactions/presentation/transaction_detail_screen.dart';
 import '../../features/transactions/presentation/transaction_form_screen.dart';
+import '../../features/transactions/presentation/transaction_success_screen.dart';
 import '../../features/transactions/presentation/transactions_screen.dart';
 
 /// Creates and provides the [GoRouter] instance.
@@ -131,6 +132,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           initialType: TransactionType.fromName(
             state.uri.queryParameters['type'],
           ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.transactionSuccess,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => TransactionSuccessScreen(
+          type: TransactionType.fromName(state.uri.queryParameters['type']),
         ),
       ),
       GoRoute(

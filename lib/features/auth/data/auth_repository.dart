@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:logger/logger.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/errors/app_exception.dart';
@@ -84,9 +86,103 @@ class AuthRepository {
     }
   }
 
+  // ── Google sign-in ─────────────────────────────────────────────
+  /// Optional override: `flutter run --dart-define=GOOGLE_SERVER_CLIENT_ID=...`
+  /// Normally not needed — on Android the web client ID is read from
+  /// google-services.json (`default_web_client_id`), on iOS from
+  /// GoogleService-Info.plist.
+  static const _serverClientIdOverride =
+      String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
+  static bool _googleInitialized = false;
+
+  Future<void> _initGoogle() async {
+    if (_googleInitialized) return;
+    await GoogleSignIn.instance.initialize(
+      serverClientId:
+          _serverClientIdOverride.isEmpty ? null : _serverClientIdOverride,
+    );
+    _googleInitialized = true;
+  }
+
+  /// Shows the Google account picker and returns a Firebase credential.
+  ///
+  /// Throws [AuthCancelledException] when the user closes the picker.
+  Future<OAuthCredential> _googleCredential() async {
+    final l = currentL10n;
+    final GoogleSignInAccount account;
+    try {
+      await _initGoogle();
+      account = await GoogleSignIn.instance.authenticate();
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled ||
+          e.code == GoogleSignInExceptionCode.interrupted) {
+        throw const AuthCancelledException();
+      }
+      Logger().w('Google sign-in error: ${e.code} ${e.description}');
+      if (e.code == GoogleSignInExceptionCode.clientConfigurationError ||
+          e.code == GoogleSignInExceptionCode.providerConfigurationError) {
+        throw AuthException(l.authGoogleNotConfigured);
+      }
+      throw AuthException(l.authGoogleFailed);
+    } catch (e) {
+      // e.g. "CredentialManager requires a serverClientId" when Google
+      // sign-in has not been enabled in Firebase yet.
+      Logger().w('Google sign-in setup error: $e');
+      throw AuthException(l.authGoogleNotConfigured);
+    }
+    final idToken = account.authentication.idToken;
+    if (idToken == null) throw AuthException(l.authGoogleNotConfigured);
+    return GoogleAuthProvider.credential(idToken: idToken);
+  }
+
+  /// Signs in (or signs up) with a Google account. Creates the Firestore
+  /// profile on the first sign-in.
+  Future<User> signInWithGoogle() async {
+    final credential = await _googleCredential();
+    try {
+      final result = await _auth.signInWithCredential(credential);
+      final user = result.user!;
+      await _ensureProfile(user);
+      return user;
+    } on FirebaseAuthException catch (e) {
+      throw FirebaseErrorMapper.fromAuth(e);
+    } on FirebaseException catch (e) {
+      throw DatabaseException(e.message ?? 'Failed to save user profile.');
+    }
+  }
+
+  /// True when the account has an email + password (false for Google-only
+  /// accounts, which have no LifeMate password to change).
+  bool get hasPassword =>
+      _auth.currentUser?.providerData.any((p) => p.providerId == 'password') ??
+      false;
+
+  Future<void> _ensureProfile(User user) async {
+    final doc =
+        await _firestore.collection(AppConstants.colUsers).doc(user.uid).get();
+    if (doc.exists) return;
+    final email = user.email ?? '';
+    var name = (user.displayName?.trim().isNotEmpty ?? false)
+        ? user.displayName!.trim()
+        : email.split('@').first;
+    if (name.length > 50) name = name.substring(0, 50);
+    await _createUserProfile(
+      uid: user.uid,
+      email: email,
+      displayName: name,
+      locale: currentLanguageCode(),
+    );
+  }
+
   // ── Logout ─────────────────────────────────────────────────────
   Future<void> logout() async {
     await _auth.signOut();
+    // Also forget the Google account, so the picker appears next time.
+    if (_googleInitialized) {
+      try {
+        await GoogleSignIn.instance.signOut();
+      } catch (_) {}
+    }
   }
 
   // ── Forgot password ────────────────────────────────────────────
@@ -135,21 +231,28 @@ class AuthRepository {
   /// never deletes anything. If deleting the Auth account itself fails
   /// afterwards (very rare), the data is already gone and the user can
   /// simply try again.
-  Future<void> deleteAccount({required String password}) async {
+  ///
+  /// Pass [password] for email accounts; for Google-only accounts leave it
+  /// null and the Google account picker confirms the user's identity.
+  Future<void> deleteAccount({String? password}) async {
     final user = _auth.currentUser;
     if (user == null || user.email == null) {
       throw AuthException(currentL10n.authRequiresRecentLogin);
     }
 
     try {
-      final credential = EmailAuthProvider.credential(
-        email: user.email!,
-        password: password,
-      );
+      final AuthCredential credential = password != null
+          ? EmailAuthProvider.credential(email: user.email!, password: password)
+          : await _googleCredential();
       await user.reauthenticateWithCredential(credential);
 
       await AccountDataService(_firestore).deleteAllUserData(user.uid);
       await user.delete();
+      if (_googleInitialized) {
+        try {
+          await GoogleSignIn.instance.disconnect();
+        } catch (_) {}
+      }
     } on FirebaseAuthException catch (e) {
       throw FirebaseErrorMapper.fromAuth(e);
     } on FirebaseException catch (e) {
@@ -273,6 +376,13 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 /// [AsyncValue.data(user)] = signed in
 final authStateProvider = StreamProvider<User?>((ref) {
   return ref.watch(authRepositoryProvider).authStateChanges;
+});
+
+/// Whether the signed-in account has an email + password (false for
+/// Google-only accounts).
+final hasPasswordProvider = Provider<bool>((ref) {
+  ref.watch(authStateProvider);
+  return ref.watch(authRepositoryProvider).hasPassword;
 });
 
 /// The signed-in user's uid, or null when signed out.

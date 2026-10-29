@@ -7,17 +7,51 @@ import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../core/services/notification_service.dart';
+import '../../../core/utils/money.dart';
+import '../../../shared/widgets/app_snack_bar.dart';
 import '../../../shared/widgets/app_states.dart';
+import '../../../shared/widgets/ui_kit.dart';
 import '../domain/spending_limit.dart';
+import '../domain/spending_limit_calculator.dart';
 import '../domain/spending_limit_providers.dart';
+import 'limit_alert_messages.dart';
 import 'widgets/limit_progress_card.dart';
 
-/// Overview of the daily and monthly spending limits.
-class SpendingLimitsScreen extends ConsumerWidget {
+/// Daily / monthly spending limits: progress, warning banner and an
+/// alerts switch (as in the design).
+class SpendingLimitsScreen extends ConsumerStatefulWidget {
   const SpendingLimitsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SpendingLimitsScreen> createState() =>
+      _SpendingLimitsScreenState();
+}
+
+class _SpendingLimitsScreenState extends ConsumerState<SpendingLimitsScreen> {
+  LimitPeriod _period = LimitPeriod.daily;
+  bool _savingAlerts = false;
+
+  Future<void> _setAlerts(LimitStatus status, bool enabled) async {
+    setState(() => _savingAlerts = true);
+    try {
+      if (enabled) {
+        await ref.read(notificationServiceProvider).requestPermission();
+      }
+      final alerts = await ref.read(spendingLimitServiceProvider).save(
+            status.limit.copyWith(alertsEnabled: enabled),
+            isNew: false,
+          );
+      if (mounted) showLimitAlerts(context, alerts);
+    } catch (e) {
+      if (mounted) AppSnackBar.error(context, readableError(e));
+    } finally {
+      if (mounted) setState(() => _savingAlerts = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final statusesAsync = ref.watch(limitStatusesProvider);
 
     return Scaffold(
@@ -26,23 +60,123 @@ class SpendingLimitsScreen extends ConsumerWidget {
       body: statusesAsync.when(
         loading: () => const LoadingState(),
         error: (e, _) => Center(child: ErrorState(error: e)),
-        data: (statuses) => ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            for (final period in LimitPeriod.values) ...[
-              if (statuses[period] case final status?)
+        data: (statuses) {
+          final status = statuses[_period];
+          // Banner for the most severe limit that needs attention.
+          LimitStatus? attention;
+          for (final s in statuses.values) {
+            if (s.level == LimitLevel.ok) continue;
+            if (attention == null || s.level.isMoreSevereThan(attention.level)) {
+              attention = s;
+            }
+          }
+
+          return ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              PillTabs<LimitPeriod>(
+                options: LimitPeriod.values,
+                selected: _period,
+                labelOf: (p) => p == LimitPeriod.daily ? 'Daily' : 'Monthly',
+                onSelected: (p) => setState(() => _period = p),
+              ),
+              const Gap(18),
+              if (status != null)
                 LimitProgressCard(
                   status: status,
-                  onTap: () => context.push(AppRoutes.editLimit(period.name)),
+                  onTap: () => context.push(AppRoutes.editLimit(_period.name)),
                 )
               else
-                SetLimitCard(period: period),
-              const Gap(16),
+                SetLimitCard(period: _period),
+              const Gap(12),
+              // The other period below.
+              for (final other in LimitPeriod.values.where((p) => p != _period))
+                if (statuses[other] case final s?)
+                  LimitProgressCard(
+                    status: s,
+                    onTap: () => context.push(AppRoutes.editLimit(other.name)),
+                  )
+                else
+                  SetLimitCard(period: other),
+              if (attention != null) ...[
+                const Gap(16),
+                _AttentionBanner(status: attention),
+              ],
+              if (status != null) ...[
+                const Gap(16),
+                AppCard(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: status.limit.alertsEnabled,
+                    activeThumbColor: AppColors.primary,
+                    title:
+                        Text('Enable alerts', style: AppTextStyles.titleMedium),
+                    subtitle: Text(
+                      _period == LimitPeriod.daily
+                          ? 'Notify me about my daily limit'
+                          : 'Notify me about my monthly limit',
+                      style: AppTextStyles.bodySmall,
+                    ),
+                    onChanged:
+                        _savingAlerts ? null : (v) => _setAlerts(status, v),
+                  ),
+                ),
+              ],
+              const Gap(20),
+              const _HowItWorks(),
             ],
-            const Gap(8),
-            const _HowItWorks(),
-          ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Honey banner when a limit is close, reached or exceeded.
+class _AttentionBanner extends StatelessWidget {
+  const _AttentionBanner({required this.status});
+
+  final LimitStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final name = status.limit.period == LimitPeriod.daily ? 'daily' : 'monthly';
+    final currency = status.limit.currency;
+    final exceeded = status.level == LimitLevel.exceeded;
+    final (icon, text, color) = switch (status.level) {
+      LimitLevel.exceeded => (
+          Icons.error_outline_rounded,
+          'You went over your $name limit by '
+              '${Money.format(status.exceededByMinor, currency)}.',
+          AppColors.error,
         ),
+      LimitLevel.reached => (
+          Icons.warning_amber_rounded,
+          'You reached your $name limit. Nothing left for this period.',
+          AppColors.warning,
+        ),
+      _ => (
+          Icons.lightbulb_outline_rounded,
+          "You're close to your $name limit "
+              '(${Money.format(status.remainingMinor, currency)} remaining).',
+          AppColors.warning,
+        ),
+    };
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: (exceeded ? AppColors.error : AppColors.honey).withAlpha(34),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withAlpha(70)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color),
+          const Gap(10),
+          Expanded(child: Text(text, style: AppTextStyles.bodyMedium)),
+        ],
       ),
     );
   }

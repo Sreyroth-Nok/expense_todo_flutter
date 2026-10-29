@@ -179,25 +179,25 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get onboardingTitle1 => 'Manage Your Money';
+  String get onboardingTitle1 => 'Take control\nof your finances';
 
   @override
   String get onboardingBody1 =>
-      'Track income and expenses, set spending limits, and reach your savings goals — all in one place.';
+      'Track your income, expenses, budgets and achieve your goals — all in one place.';
 
   @override
-  String get onboardingTitle2 => 'Plan Every Day';
+  String get onboardingTitle2 => 'Stay on top\nof your day';
 
   @override
   String get onboardingBody2 =>
-      'Organise tasks, schedule events, set reminders, and never miss an important bill again.';
+      'Manage tasks, calendar events, reminders and shopping lists for a better you.';
 
   @override
-  String get onboardingTitle3 => 'Stay Organised';
+  String get onboardingTitle3 => 'Spend smart,\nsave more';
 
   @override
   String get onboardingBody3 =>
-      'Create shopping lists, track your budget categories, and get clear reports on your spending habits.';
+      'Set daily and monthly limits and savings goals, and get a gentle alert before you overspend.';
 
   @override
   String get onboardingSkip => 'Skip';
@@ -215,10 +215,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authLogIn => 'Log In';
 
   @override
-  String get loginTitle => 'Welcome back';
+  String get loginTitle => 'Welcome back!';
 
   @override
-  String get loginSubtitle => 'Sign in to your LifeMate account.';
+  String get loginSubtitle => 'Sign in to continue';
 
   @override
   String get fieldEmail => 'Email address';
@@ -242,7 +242,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginFailed => 'Login failed. Please try again.';
 
   @override
-  String get registerTitle => 'Create account';
+  String get registerTitle => 'Create your account';
 
   @override
   String get registerSubtitle => 'Start managing your money and daily life.';
@@ -713,4 +713,88 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteDone => 'Your account was deleted.';
+
+  @override
+  String get appTagline => 'Plan Today · Live Better';
+
+  @override
+  String get authContinueWithGoogle => 'Continue with Google';
+
+  @override
+  String get authOr => 'or';
+
+  @override
+  String get authSignUp => 'Sign Up';
+
+  @override
+  String get authGoogleFailed => 'Google sign-in failed. Please try again.';
+
+  @override
+  String get authGoogleNotConfigured =>
+      'Google sign-in is not set up for this app yet. Use email and password for now.';
+
+  @override
+  String get authAccountExistsDifferentCredential =>
+      'This email is already registered with a different sign-in method. Log in with your email and password.';
+
+  @override
+  String get settingsPasswordGoogle =>
+      'You sign in with Google — your password is managed in your Google account.';
+
+  @override
+  String get deleteGoogleHint =>
+      'You signed in with Google. To confirm, choose your Google account again.';
+
+  @override
+  String get deleteConfirmWithGoogle => 'Confirm with Google and delete';
+
+  @override
+  String get homeBalanceThisMonth => 'Balance this month';
+
+  @override
+  String get homeSpendingThisMonth => 'Spending this month';
+
+  @override
+  String get homeHideAmounts => 'Hide amounts';
+
+  @override
+  String get homeShowAmounts => 'Show amounts';
+
+  @override
+  String get homeNoMonthlyTarget => 'Set a monthly limit to track this';
+
+  @override
+  String get quickAddIncome => 'Add Income';
+
+  @override
+  String get quickAddExpense => 'Add Expense';
+
+  @override
+  String get quickAddTask => 'Add Task';
+
+  @override
+  String get quickShoppingList => 'Shopping';
+
+  @override
+  String get successTransactionTitle => 'Transaction Added!';
+
+  @override
+  String get successTransactionBody =>
+      'Your transaction has been recorded successfully.';
+
+  @override
+  String get successViewTransactions => 'View Transactions';
+
+  @override
+  String get successAddAnother => 'Add Another';
+
+  @override
+  String get successDone => 'Done';
+
+  @override
+  String get settingsExportData => 'Export data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Synced to the cloud automatically · export as CSV';
 }

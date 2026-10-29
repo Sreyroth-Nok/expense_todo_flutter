@@ -31,6 +31,12 @@ final class NetworkException extends AppException {
   const NetworkException(super.message);
 }
 
+/// The user closed a sign-in dialog (e.g. Google account picker). Not an
+/// error to show — the UI simply stays where it is.
+final class AuthCancelledException extends AppException {
+  const AuthCancelledException() : super('Sign-in cancelled.');
+}
+
 /// Catch-all for unexpected errors.
 final class UnknownException extends AppException {
   const UnknownException(super.message);

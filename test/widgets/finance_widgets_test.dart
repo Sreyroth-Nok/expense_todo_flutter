@@ -25,8 +25,8 @@ void main() {
         onSubmit: (tx) => submitted = tx,
       )));
 
-      await tester.ensureVisible(find.text('Save transaction'));
-      await tester.tap(find.text('Save transaction'));
+      await tester.ensureVisible(find.text('Save'));
+      await tester.tap(find.text('Save'));
       await tester.pump();
 
       expect(find.text('Amount is required.'), findsOneWidget);
@@ -43,9 +43,13 @@ void main() {
       )));
 
       await tester.enterText(find.byKey(const Key('amountField')), '4.35');
+      // Categories are chosen in a bottom sheet.
+      await tester.tap(find.byKey(const Key('categoryField')));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Transport'));
-      await tester.ensureVisible(find.text('Save transaction'));
-      await tester.tap(find.text('Save transaction'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Save'));
+      await tester.tap(find.text('Save'));
       await tester.pump();
 
       expect(submitted, isNotNull);
@@ -61,10 +65,16 @@ void main() {
         defaultCurrency: 'USD',
         onSubmit: (_) {},
       )));
+      await tester.tap(find.byKey(const Key('categoryField')));
+      await tester.pumpAndSettle();
       expect(find.text('Transport'), findsOneWidget);
+      Navigator.of(tester.element(find.text('Transport'))).pop();
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text('Income'));
       await tester.pump();
+      await tester.tap(find.byKey(const Key('categoryField')));
+      await tester.pumpAndSettle();
       expect(find.text('Salary'), findsOneWidget);
       expect(find.text('Transport'), findsNothing);
     });

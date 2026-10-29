@@ -28,6 +28,7 @@ class SettingsScreen extends ConsumerWidget {
     final user = ref.watch(authStateProvider).value;
     final profile = ref.watch(currentUserProfileProvider).value;
     final locale = ref.watch(localeProvider);
+    final hasPassword = ref.watch(hasPasswordProvider);
     final zone = ref.watch(deviceTimeZoneProvider).value ?? '…';
     final currency = profile?.currency ?? AppConstants.defaultCurrency;
     final name = (profile?.displayName.isNotEmpty ?? false)
@@ -89,8 +90,10 @@ class SettingsScreen extends ConsumerWidget {
           _SettingsTile(
             icon: Icons.lock_outline_rounded,
             title: l.settingsChangePassword,
-            subtitle: l.settingsChangePasswordDesc,
-            onTap: () => context.go(AppRoutes.changePassword),
+            subtitle: hasPassword
+                ? l.settingsChangePasswordDesc
+                : l.settingsPasswordGoogle,
+            onTap: hasPassword ? () => context.go(AppRoutes.changePassword) : null,
           ),
           const Gap(16),
 
@@ -138,6 +141,12 @@ class SettingsScreen extends ConsumerWidget {
 
           // ── Privacy & data ─────────────────────────────────────
           _SectionHeader(l.settingsPrivacyData),
+          _SettingsTile(
+            icon: Icons.cloud_done_outlined,
+            title: l.settingsExportData,
+            subtitle: l.settingsExportDataDesc,
+            onTap: () => context.go(AppRoutes.reports),
+          ),
           _SettingsTile(
             icon: Icons.privacy_tip_outlined,
             title: l.settingsPrivacy,
@@ -290,7 +299,9 @@ class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
-  final VoidCallback onTap;
+
+  /// null = shown but not tappable (e.g. password for Google accounts).
+  final VoidCallback? onTap;
   final Color color;
 
   @override
@@ -310,8 +321,10 @@ class _SettingsTile extends StatelessWidget {
           style: AppTextStyles.titleMedium.copyWith(
               color: color == AppColors.error ? AppColors.error : null)),
       subtitle: Text(subtitle, style: AppTextStyles.bodySmall),
-      trailing:
-          const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+      trailing: onTap == null
+          ? null
+          : const Icon(Icons.chevron_right_rounded,
+              color: AppColors.textSecondary),
       onTap: onTap,
     );
   }
