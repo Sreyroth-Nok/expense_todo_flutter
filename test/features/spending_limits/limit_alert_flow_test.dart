@@ -1,11 +1,11 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/features/spending_limits/data/spending_limit_alert_service.dart';
-import 'package:lifemate/features/spending_limits/data/spending_limit_repository.dart';
-import 'package:lifemate/features/spending_limits/domain/limit_alert_policy.dart';
-import 'package:lifemate/features/spending_limits/domain/spending_limit.dart';
-import 'package:lifemate/features/transactions/data/transaction_repository.dart';
-import 'package:lifemate/features/transactions/domain/transaction_providers.dart';
+import 'package:lifemate/services/spending_limit_alert_service.dart';
+import 'package:lifemate/services/spending_limit_repository.dart';
+import 'package:lifemate/services/limit_alert_policy.dart';
+import 'package:lifemate/models/spending_limit.dart';
+import 'package:lifemate/services/transaction_repository.dart';
+import 'package:lifemate/providers/transaction_providers.dart';
 
 import '../../helpers/builders.dart';
 

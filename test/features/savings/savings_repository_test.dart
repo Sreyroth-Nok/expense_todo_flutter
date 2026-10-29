@@ -1,8 +1,8 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/core/errors/app_exception.dart';
-import 'package:lifemate/features/savings/data/savings_repository.dart';
-import 'package:lifemate/features/savings/domain/savings_goal.dart';
+import 'package:lifemate/utils/app_exception.dart';
+import 'package:lifemate/services/savings_repository.dart';
+import 'package:lifemate/models/savings_goal.dart';
 
 void main() {
   const uid = 'u1';

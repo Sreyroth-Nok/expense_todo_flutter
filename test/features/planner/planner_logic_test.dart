@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/core/services/scheduled_notice.dart';
-import 'package:lifemate/features/calendar/domain/calendar_event.dart';
-import 'package:lifemate/features/reminders/domain/notification_sync.dart';
-import 'package:lifemate/features/reminders/domain/reminder.dart';
-import 'package:lifemate/features/reminders/domain/reminder_providers.dart';
-import 'package:lifemate/features/savings/domain/savings_goal.dart';
-import 'package:lifemate/features/tasks/domain/planner_task.dart';
-import 'package:lifemate/shared/models/notification_preferences.dart';
+import 'package:lifemate/models/scheduled_notice.dart';
+import 'package:lifemate/models/calendar_event.dart';
+import 'package:lifemate/providers/notification_sync.dart';
+import 'package:lifemate/models/reminder.dart';
+import 'package:lifemate/providers/reminder_providers.dart';
+import 'package:lifemate/models/savings_goal.dart';
+import 'package:lifemate/models/planner_task.dart';
+import 'package:lifemate/models/notification_preferences.dart';
 
 void main() {
   final now = DateTime(2026, 10, 23, 14, 0);

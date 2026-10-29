@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lifemate/core/l10n/l10n.dart';
-import 'package:lifemate/features/auth/presentation/widgets/google_sign_in_button.dart';
-import 'package:lifemate/features/dashboard/presentation/main_shell.dart';
-import 'package:lifemate/shared/widgets/ui_kit.dart';
+import 'package:lifemate/l10n/l10n.dart';
+import 'package:lifemate/widgets/google_sign_in_button.dart';
+import 'package:lifemate/screens/dashboard/main_shell.dart';
+import 'package:lifemate/widgets/ui_kit.dart';
 
 Widget _app(Widget child) => ProviderScope(
       child: MaterialApp(

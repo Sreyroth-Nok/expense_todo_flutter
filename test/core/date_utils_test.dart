@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/core/utils/date_utils.dart';
+import 'package:lifemate/utils/date_utils.dart';
 
 void main() {
   group('AppDateUtils.dayOf', () {

@@ -1,7 +1,7 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/core/constants/app_constants.dart';
-import 'package:lifemate/features/settings/data/account_data_service.dart';
+import 'package:lifemate/utils/app_constants.dart';
+import 'package:lifemate/services/account_data_service.dart';
 
 void main() {
   late FakeFirebaseFirestore db;

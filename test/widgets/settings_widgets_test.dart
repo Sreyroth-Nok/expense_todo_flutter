@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:lifemate/core/l10n/l10n.dart';
-import 'package:lifemate/features/settings/presentation/account_screens.dart';
+import 'package:lifemate/l10n/l10n.dart';
+import 'package:lifemate/screens/settings/account_screens.dart';
 
 Widget _app(Widget child, {String lang = 'en'}) => MaterialApp(
       locale: Locale(lang),

@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/features/transactions/domain/finance_summary.dart';
-import 'package:lifemate/features/transactions/domain/finance_transaction.dart';
-import 'package:lifemate/features/transactions/domain/transaction_filter.dart';
-import 'package:lifemate/core/utils/date_utils.dart';
+import 'package:lifemate/models/finance_summary.dart';
+import 'package:lifemate/models/finance_transaction.dart';
+import 'package:lifemate/models/transaction_filter.dart';
+import 'package:lifemate/utils/date_utils.dart';
 
 import '../../helpers/builders.dart';
 

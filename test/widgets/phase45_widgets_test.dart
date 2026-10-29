@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lifemate/features/savings/domain/savings_goal.dart';
-import 'package:lifemate/features/savings/presentation/widgets/savings_goal_card.dart';
+import 'package:lifemate/models/savings_goal.dart';
+import 'package:lifemate/widgets/savings_goal_card.dart';
 
 Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 

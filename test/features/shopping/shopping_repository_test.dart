@@ -1,8 +1,8 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/core/errors/app_exception.dart';
-import 'package:lifemate/features/shopping/data/shopping_repository.dart';
-import 'package:lifemate/features/shopping/domain/shopping.dart';
+import 'package:lifemate/utils/app_exception.dart';
+import 'package:lifemate/services/shopping_repository.dart';
+import 'package:lifemate/models/shopping.dart';
 
 void main() {
   const uid = 'u1';

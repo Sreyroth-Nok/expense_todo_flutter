@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/features/auth/presentation/login_screen.dart';
-import 'package:lifemate/features/auth/presentation/onboarding_screen.dart';
-import 'package:lifemate/features/dashboard/presentation/home_screen.dart';
+import 'package:lifemate/screens/auth/login_screen.dart';
+import 'package:lifemate/screens/auth/onboarding_screen.dart';
+import 'package:lifemate/screens/dashboard/home_screen.dart';
 
 import 'flow_harness.dart';
 

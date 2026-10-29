@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lifemate/features/spending_limits/domain/spending_limit_calculator.dart';
-import 'package:lifemate/features/spending_limits/presentation/widgets/limit_progress_card.dart';
-import 'package:lifemate/features/transactions/domain/finance_transaction.dart';
-import 'package:lifemate/features/transactions/domain/transaction_category.dart';
-import 'package:lifemate/features/transactions/presentation/widgets/transaction_form.dart';
+import 'package:lifemate/services/spending_limit_calculator.dart';
+import 'package:lifemate/widgets/limit_progress_card.dart';
+import 'package:lifemate/models/finance_transaction.dart';
+import 'package:lifemate/models/transaction_category.dart';
+import 'package:lifemate/widgets/transaction_form.dart';
 
 import '../helpers/builders.dart';
 

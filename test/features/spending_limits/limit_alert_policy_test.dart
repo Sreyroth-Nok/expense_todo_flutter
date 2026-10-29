@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/features/spending_limits/domain/limit_alert_policy.dart';
-import 'package:lifemate/features/spending_limits/domain/spending_limit.dart';
+import 'package:lifemate/services/limit_alert_policy.dart';
+import 'package:lifemate/models/spending_limit.dart';
 
 void main() {
   AlertDecision decide(LimitLevel current, LimitLevel? last,

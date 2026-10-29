@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
-import 'package:lifemate/core/l10n/l10n.dart';
-import 'package:lifemate/core/utils/validators.dart';
+import 'package:lifemate/l10n/l10n.dart';
+import 'package:lifemate/utils/validators.dart';
 
 Map<String, dynamic> _arb(String code) =>
     jsonDecode(File('lib/l10n/app_$code.arb').readAsStringSync())

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/core/services/scheduled_notice.dart';
+import 'package:lifemate/models/scheduled_notice.dart';
 
 void main() {
   group('NoticeRepeat.nextOccurrence', () {

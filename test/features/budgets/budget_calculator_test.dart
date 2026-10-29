@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/features/budgets/domain/budget.dart';
-import 'package:lifemate/features/spending_limits/domain/spending_limit.dart';
-import 'package:lifemate/features/transactions/domain/finance_transaction.dart';
+import 'package:lifemate/models/budget.dart';
+import 'package:lifemate/models/spending_limit.dart';
+import 'package:lifemate/models/finance_transaction.dart';
 
 import '../../helpers/builders.dart';
 

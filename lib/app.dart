@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import 'core/l10n/l10n.dart';
-import 'core/l10n/locale_provider.dart';
-import 'core/routing/app_router.dart';
-import 'core/theme/app_theme.dart';
+import 'l10n/l10n.dart';
+import 'providers/locale_provider.dart';
+import 'routing/app_router.dart';
+import 'theme/app_theme.dart';
 
 /// Root application widget.
 ///

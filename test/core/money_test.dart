@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/core/utils/money.dart';
-import 'package:lifemate/core/utils/validators.dart';
+import 'package:lifemate/utils/money.dart';
+import 'package:lifemate/utils/validators.dart';
 
 void main() {
   group('Money.parseToMinor', () {

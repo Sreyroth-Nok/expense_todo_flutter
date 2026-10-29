@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifemate/features/spending_limits/domain/spending_limit.dart';
-import 'package:lifemate/features/spending_limits/domain/spending_limit_calculator.dart';
+import 'package:lifemate/models/spending_limit.dart';
+import 'package:lifemate/services/spending_limit_calculator.dart';
 
 import '../../helpers/builders.dart';
 
